@@ -46,9 +46,10 @@ def create_app(config_override=None) -> Flask:
     # Register blueprints
     with app.app_context():
         # Core models (creates tables if missing)
-        import app.models.entities  # noqa: F401
+        import importlib
+        importlib.import_module('app.models.entities')
         try:
-            import app.models.user  # noqa: F401
+            importlib.import_module('app.models.user')
         except ImportError:
             pass
         db.create_all()

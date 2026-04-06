@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-zinc-950 text-zinc-50">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Archiet{% endblock %}</title>
+  <!-- Tailwind CDN (dev; replace with build in prod) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{brand:'#7c3aed'}}}}</script>
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.0/dist/cdn.min.js"></script>
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@0.378.0/dist/umd/lucide.min.js"></script>
+  {% block head %}{% endblock %}
+</head>
+<body class="h-full flex flex-col antialiased">
+  <!-- Top nav -->
+  <header class="flex items-center justify-between px-6 py-3 border-b border-zinc-800 bg-zinc-900 shrink-0">
+    <a href="/" class="flex items-center gap-2 font-semibold text-violet-400 text-lg tracking-tight">
+      <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/>
+        <line x1="12" y1="22" x2="12" y2="15.5"/>
+        <polyline points="22 8.5 12 15.5 2 8.5"/>
+      </svg>
+      Archiet
+    </a>
+    <nav class="flex items-center gap-4 text-sm text-zinc-400">
+      <a href="/journey" class="hover:text-zinc-100 transition-colors">New Project</a>
+      <a href="/dashboard" class="hover:text-zinc-100 transition-colors">Dashboard</a>
+      {% block nav_extra %}{% endblock %}
+    </nav>
+  </header>
+  <!-- Main -->
+  <main class="flex-1 overflow-auto">
+    {% block content %}{% endblock %}
+  </main>
+  <!-- Footer -->
+  <footer class="shrink-0 px-6 py-2 border-t border-zinc-800 text-xs text-zinc-600 flex justify-between">
+    <span>Archiet &copy; 2026</span>
+    <span>{% block status_bar %}{% endblock %}</span>
+  </footer>
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div id="flash-container" class="fixed top-4 right-4 z-50 space-y-2">
+    {% for category, message in messages %}
+    <div class="rounded-lg px-4 py-2 text-sm font-medium shadow-lg
+      {% if category == 'error' %}bg-red-600 text-white
+      {% elif category == 'success' %}bg-green-600 text-white
+      {% else %}bg-zinc-700 text-zinc-100{% endif %}">
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  <script>setTimeout(()=>{document.getElementById('flash-container')?.remove()},4000)</script>
+  {% endif %}
+  {% endwith %}
+  <script>if(window.lucide)lucide.createIcons();</script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
