@@ -45,8 +45,8 @@ const securityHeaders = [
 
 const nextConfig = {
 
-  // Subpath deployment — all assets/routes served under this prefix
-  basePath: "",
+  // Subpath deployment: ARCHIE preview uses /apps/{id}; standalone deploy overrides with NEXT_PUBLIC_BASE_PATH=""
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH !== undefined ? process.env.NEXT_PUBLIC_BASE_PATH : "/apps/5373",
 
 
   // Hardened security headers on all routes

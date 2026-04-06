@@ -113,89 +113,19 @@ import { useState, useEffect } from "react"
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
 
-  { label: "SmtpRelayGcps", href: "/smtp_relay_gcp", icon: Box },
+  { label: "Core Businesses", href: "/core_business", icon: Box },
 
-  { label: "PrimaryDataStores", href: "/primary_data_store", icon: Box },
+  { label: "Key Metrics And Kp es", href: "/key_metrics_and_kp_is", icon: Box },
 
-  { label: "IdentityAndAccessManagements", href: "/identity_and_access_management", icon: Box },
-
-  { label: "AuthenticationServices", href: "/authentication_service", icon: Box },
-
-  { label: "MonitoringPlatforms", href: "/monitoring_platform", icon: Box },
-
-  { label: "AnalyticsEngines", href: "/analytics_engine", icon: Box },
-
-  { label: "ReportingServices", href: "/reporting_service", icon: Box },
-
-  { label: "GcpCohesityForSystemsBackups", href: "/gcp_cohesity_for_systems_backup", icon: Box },
-
-  { label: "ApiGateways", href: "/api_gateway", icon: Box },
-
-  { label: "MessageBrokers", href: "/message_broker", icon: Box },
-
-  { label: "BusinessLogicLayers", href: "/business_logic_layer", icon: Box },
-
-  { label: "CoreBusinessFunctions", href: "/core_business_function", icon: Box },
-
-  { label: "CoreBusinessApis", href: "/core_business_api", icon: Box },
-
-  { label: "FrontendApplications", href: "/frontend_application", icon: Box },
-
-  { label: "ActiveDirectoryAds", href: "/active_directory_ad", icon: Box },
-
-  { label: "NotificationServices", href: "/notification_service", icon: Box },
-
-  { label: "GoogleGeminiModelss", href: "/google_gemini_models", icon: Box },
-
-  { label: "VeritasNetbackupSaaSs", href: "/veritas_netbackup_saa_s", icon: Box },
-
-  { label: "BlueprintJourneyInterfaces", href: "/blueprint_journey_interface", icon: Box },
-
-  { label: "ArchitectureTemplateGallerys", href: "/architecture_template_gallery", icon: Box },
-
-  { label: "BlueprintPublicViewers", href: "/blueprint_public_viewer", icon: Box },
-
-  { label: "CicdToolchains", href: "/cicd_toolchain", icon: Box },
-
-  { label: "CicdPipelines", href: "/cicd_pipeline", icon: Box },
-
-  { label: "HealthMonitorings", href: "/health_monitoring", icon: Box },
-
-  { label: "GenomeSpecGenerators", href: "/genome_spec_generator", icon: Box },
-
-  { label: "CodeGenerationServices", href: "/code_generation_service", icon: Box },
-
-  { label: "ExportServices", href: "/export_service", icon: Box },
-
-  { label: "JourneySessionOrchestrators", href: "/journey_session_orchestrator", icon: Box },
-
-  { label: "StripeWebhookHandlers", href: "/stripe_webhook_handler", icon: Box },
-
-  { label: "RowLevelSecurityEnforcers", href: "/row_level_security_enforcer", icon: Box },
-
-  { label: "GdprComplianceServices", href: "/gdpr_compliance_service", icon: Box },
-
-  { label: "AiArchitectureEngines", href: "/ai_architecture_engine", icon: Box },
-
-  { label: "UsageMeteringLimitings", href: "/usage_metering_limiting", icon: Box },
-
-  { label: "QualityScoringEngines", href: "/quality_scoring_engine", icon: Box },
-
-  { label: "GitHubIntegrationServices", href: "/git_hub_integration_service", icon: Box },
-
-  { label: "CoreBusinesss", href: "/core_business", icon: Box },
-
-  { label: "KeyMetricsAndKpIss", href: "/key_metrics_and_kp_is", icon: Box },
-
-  { label: "AnalyticsDataStores", href: "/analytics_data_store", icon: Box },
+  { label: "Analytics Data Stores", href: "/analytics_data_store", icon: Box },
 
   { label: "Workspaces", href: "/workspace", icon: Box },
 
-  { label: "JourneySessionConversationss", href: "/journey_session_conversations", icon: Box },
+  { label: "Journey Session Conversations", href: "/journey_session_conversations", icon: Box },
 
-  { label: "GenomeSpecDefinitionss", href: "/genome_spec_definitions", icon: Box },
+  { label: "Genome Spec Definitions", href: "/genome_spec_definitions", icon: Box },
 
-  { label: "GeneratedCodeArtifactss", href: "/generated_code_artifacts", icon: Box },
+  { label: "Generated Code Artifacts", href: "/generated_code_artifacts", icon: Box },
 
   { label: "Admin", href: "/admin", icon: Settings },
 ]

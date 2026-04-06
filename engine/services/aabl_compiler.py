@@ -1585,3 +1585,209 @@ def _build_default_views(fields_by_entity: dict, aggregate_root: str, state_mach
             views["create"] = {"fields": create_fields}
 
     return views
+
+def compile_genome_from_elements(
+    elements: list,
+    relationships: list,
+    problem: dict = None,
+    config: dict = None,
+    solution_name: str = "",
+    session_id: str = "",
+    language: str = "nextjs-shadcn",
+) -> dict:
+    # Pure-function entry point for the AABL compiler.
+    # Accepts pre-loaded element/relationship dicts -- no DB access required.
+    # Used by Archiet (journey session elements).
+    # ARCHIE uses compile_genome(solution_id). Same private helpers, same output.
+    import re as _re
+    config = config or {}
+    problem = problem or {}
+
+    class _Elem:
+        pass
+
+    elements_dict = {}
+    for e in elements:
+        obj = _Elem()
+        obj.id = e.get("id") or str(__import__("uuid").uuid4())
+        obj.name = e.get("name", "Unknown")
+        obj.type = e.get("type", "ApplicationComponent")
+        obj.layer = e.get("layer", "application")
+        obj.description = e.get("description", "")
+        obj.element_name = obj.name
+        raw_spec = e.get("spec_data")
+        obj.spec_data = (json.dumps(raw_spec) if isinstance(raw_spec, dict) else (raw_spec or "{}"))
+        raw_props = e.get("properties")
+        obj.properties = (json.dumps(raw_props) if isinstance(raw_props, dict) else (raw_props or "{}"))
+        obj.acm_properties = obj.properties
+        elements_dict[obj.id] = obj
+
+    class _Rel:
+        pass
+
+    rel_objs = []
+    for r in relationships:
+        obj = _Rel()
+        obj.id = r.get("id", "")
+        obj.source_id = r.get("source_id", "")
+        obj.target_id = r.get("target_id", "")
+        obj.type = r.get("type", "association")
+        obj.description = r.get("description", "")
+        rel_objs.append(obj)
+
+    junction_map = {eid: obj for eid, obj in elements_dict.items()}
+
+    modules_elements = []
+    entity_elements = []
+    rule_elements = []
+    process_elements = []
+    capability_elements = []
+
+    for eid, elem in elements_dict.items():
+        _raw = (elem.type or "").replace(" ", "")
+        _raw = _re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", _raw)
+        _raw = _re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", _raw)
+        etype = _raw.lower()
+        if etype in _MODULE_TYPES:
+            modules_elements.append(elem)
+        elif etype in _ENTITY_TYPES:
+            entity_elements.append(elem)
+        elif etype in _RULE_TYPES:
+            rule_elements.append(elem)
+        elif etype in _PROCESS_TYPES:
+            process_elements.append(elem)
+        elif etype == "capability":
+            capability_elements.append(elem)
+
+    component_to_entities = _map_component_entities(
+        modules_elements, entity_elements, rel_objs, elements_dict
+    )
+    genome_modules = {}
+    archimate_sources = {}
+
+    for comp in modules_elements:
+        module_key = _snake_case(comp.name)
+        entity_elems = component_to_entities.get(comp.id, [])
+        if not entity_elems:
+            entity_elems = [comp]
+        module_entities = []
+        module_fields = {}
+        aggregate_root = None
+
+        for entity_elem in entity_elems:
+            entity_name = _pascal_case(entity_elem.name)
+            module_entities.append(entity_name)
+            if aggregate_root is None:
+                aggregate_root = entity_name
+            junction = junction_map.get(entity_elem.id)
+            spec_data = _parse_json_field(junction.spec_data if junction else None)
+            elem_props = _parse_json_field(entity_elem.properties)
+            fields = _extract_fields(entity_elem, spec_data, elem_props)
+            if fields:
+                module_fields[entity_name] = fields
+            archimate_sources[f"modules.{module_key}.{entity_name}"] = entity_elem.id
+
+        state_machine = _extract_state_machine(comp, process_elements, rel_objs, elements_dict)
+        junction = junction_map.get(comp.id)
+        spec_data = _parse_json_field(junction.spec_data if junction else None)
+        operations = _extract_operations(comp, spec_data, module_entities)
+        sensitive_fields = _extract_sensitive_fields(entity_elems, junction_map)
+        views = _build_default_views(module_fields, aggregate_root, state_machine)
+
+        module_def = {
+            "aggregate_root": aggregate_root or _pascal_case(comp.name),
+            "entities": module_entities,
+            "archimate_element_ids": [comp.id] + [e.id for e in entity_elems if e.id != comp.id],
+        }
+        if comp.description:
+            module_def["_rationale"] = comp.description
+        if module_fields:
+            module_def["fields"] = module_fields
+        if operations:
+            module_def["operations"] = operations
+        if state_machine:
+            module_def["state_machine"] = state_machine
+        if views:
+            module_def["views"] = views
+        if sensitive_fields:
+            module_def["sensitive_fields"] = sensitive_fields
+        genome_modules[module_key] = module_def
+        archimate_sources[f"modules.{module_key}"] = comp.id
+
+    assigned_entity_ids = {e.id for el in component_to_entities.values() for e in el}
+    for entity_elem in entity_elements:
+        if entity_elem.id not in assigned_entity_ids:
+            module_key = _snake_case(entity_elem.name)
+            entity_name = _pascal_case(entity_elem.name)
+            junction = junction_map.get(entity_elem.id)
+            spec_data = _parse_json_field(junction.spec_data if junction else None)
+            elem_props = _parse_json_field(entity_elem.properties)
+            fields = _extract_fields(entity_elem, spec_data, elem_props)
+            module_def = {"aggregate_root": entity_name, "entities": [entity_name],
+                          "archimate_element_ids": [entity_elem.id]}
+            if fields:
+                module_def["fields"] = {entity_name: fields}
+            module_def["views"] = _build_default_views(module_def.get("fields", {}), entity_name, None)
+            genome_modules[module_key] = module_def
+            archimate_sources[f"modules.{module_key}"] = entity_elem.id
+
+    capabilities = []
+    for cap_elem in capability_elements:
+        cap = {"id": f"cap_{cap_elem.id}", "name": cap_elem.name,
+               "archimate_element_id": cap_elem.id}
+        if cap_elem.description:
+            cap["description"] = cap_elem.description
+        capabilities.append(cap)
+
+    problem_section = {
+        "statement": (problem.get("statement") or solution_name
+                       or "Architecture generated via Archiet journey wizard"),
+        "business_domain": problem.get("business_domain", ""),
+    }
+    if problem.get("success_metrics"):
+        problem_section["success_metrics"] = problem["success_metrics"]
+    if problem.get("constraints"):
+        problem_section["constraints"] = problem["constraints"]
+
+    infrastructure = {
+        "database": config.get("database", "postgresql"),
+        "auth": config.get("auth", "jwt_local"),
+        "observability": config.get("observability", "opentelemetry"),
+        "cache": config.get("cache", "none"),
+        "search": config.get("search", "none"),
+        "event_bus": config.get("event_bus", "none"),
+    }
+    security = {
+        "mfa": config.get("mfa", "none"),
+        "api_keys": config.get("api_keys", False),
+        "encryption_at_rest": config.get("encryption_at_rest", False),
+        "multi_tenancy": config.get("multi_tenancy", False),
+    }
+    deployment = {
+        "target": config.get("deployment_target", "docker_compose"),
+        "environments": config.get("environments", ["staging", "production"]),
+        "ci_cd": {"provider": config.get("ci_cd_provider", "github_actions"),
+                   "registry": config.get("ci_cd_registry", "ghcr")},
+    }
+    idp = {"type": "jwt-local", "roles": config.get("roles", ["admin", "user"])}
+
+    from datetime import datetime, timezone as _tz
+    genome = {
+        "genome_version": GENOME_VERSION,
+        "solution_id": session_id or "archiet-session",
+        "solution_name": solution_name or "Untitled App",
+        "generated_at": datetime.now(_tz.utc).isoformat(),
+        "language": language,
+        "problem": problem_section,
+        "modules": genome_modules,
+        "infrastructure": infrastructure,
+        "security": security,
+        "deployment": deployment,
+        "identity_provider": idp,
+        "_archimate_sources": archimate_sources,
+    }
+    if capabilities:
+        genome["capabilities"] = capabilities
+    if config.get("integrations"):
+        genome["integrations"] = config["integrations"]
+    return genome

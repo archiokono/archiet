@@ -618,3 +618,175 @@ def _generate_architecture_md(uml):
         lines.append(f"- Description: {cls.get('description', '')}")
         lines.append("")
     return "\n".join(lines)
+
+
+
+def generate_all_standalone(
+    session_data: dict,
+    language: str = "nextjs-shadcn",
+    architecture_json: dict = None,
+    genome_yaml: str = None,
+) -> dict:
+    # Render all Jinja2 templates for the given language using the genome.
+    # Returns {relative_path: file_content} for ZIP assembly.
+    import os, yaml, re
+    from jinja2 import Environment, FileSystemLoader, StrictUndefined, Undefined
+
+    errors = []
+    files = {}
+
+    # Parse genome from YAML string
+    genome = {}
+    if genome_yaml:
+        try:
+            genome = yaml.safe_load(genome_yaml) or {}
+        except Exception as e:
+            errors.append(f"Genome YAML parse error: {e}")
+    elif architecture_json:
+        genome = architecture_json
+
+    modules = genome.get("modules", {})
+    solution_name = genome.get("solution_name") or session_data.get("title") or "MyApp"
+    solution_slug = re.sub(r"[^a-z0-9]+", "-", solution_name.lower()).strip("-")
+    roles = genome.get("identity_provider", {}).get("roles", ["admin", "user"])
+    infra = genome.get("infrastructure", {})
+    security = genome.get("security", {})
+    deployment = genome.get("deployment", {})
+    integrations = genome.get("integrations", {})
+
+    # Build module context list
+    module_list = []
+    icon_map = {
+        "user": "Users", "auth": "Shield", "order": "ShoppingCart",
+        "product": "Package", "report": "BarChart", "invoice": "FileText",
+        "payment": "CreditCard", "message": "MessageSquare", "task": "CheckSquare",
+        "project": "FolderOpen", "customer": "UserCheck", "vendor": "Building2",
+        "employee": "UserCog", "asset": "HardDrive", "ticket": "Tag",
+    }
+    for mod_key, mod_def in modules.items():
+        root = mod_def.get("aggregate_root", mod_key)
+        slug = re.sub(r"[^a-z0-9]+", "-", mod_key.replace("_", "-")).strip("-")
+        icon = "Box"
+        for kw, ic in icon_map.items():
+            if kw in mod_key.lower() or kw in root.lower():
+                icon = ic
+                break
+        has_sm = bool(mod_def.get("state_machine"))
+        sm_field = ""
+        if has_sm:
+            sm_field = mod_def["state_machine"].get("field", "status")
+        fields_by_entity = mod_def.get("fields", {})
+        root_fields = fields_by_entity.get(root, [])
+        # Add ts_type to fields
+        ts_map = {"string": "string", "integer": "number", "float": "number",
+                  "boolean": "boolean", "datetime": "string", "date": "string",
+                  "json": "Record<string, unknown>", "array": "unknown[]"}
+        for f in root_fields:
+            f["ts_type"] = ts_map.get(f.get("type", "string"), "string")
+        module_list.append({
+            "name": root,
+            "slug": slug,
+            "key": mod_key,
+            "icon": icon,
+            "has_state_machine": has_sm,
+            "state_machine_field": sm_field,
+            "fields": root_fields,
+            "entities": mod_def.get("entities", [root]),
+            "operations": mod_def.get("operations", {}),
+        })
+
+    # Locate template directory
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    tmpl_dir = os.path.join(base_dir, "codegen_templates", language)
+    if not os.path.isdir(tmpl_dir):
+        # fallback to nextjs-shadcn
+        tmpl_dir = os.path.join(base_dir, "codegen_templates", "nextjs_shadcn")
+    if not os.path.isdir(tmpl_dir):
+        errors.append(f"Template directory not found: {tmpl_dir}")
+        return {"files": files, "errors": errors}
+
+    env = Environment(
+        loader=FileSystemLoader(tmpl_dir),
+        autoescape=False,
+        undefined=Undefined,  # silently ignore undefined vars
+        keep_trailing_newline=True,
+    )
+
+    # Entity template stem names that should be rendered per-module
+    ENTITY_TEMPLATES = {
+        "entity_list": "page.tsx",
+        "entity_detail": "[id]/page.tsx",
+        "entity_create": "new/page.tsx",
+        "entity_edit": "[id]/edit/page.tsx",
+        "entity_form": "[id]/edit/page.tsx",
+    }
+
+    global_ctx = {
+        "solution_name": solution_name,
+        "solution_slug": solution_slug,
+        "modules": module_list,
+        "entity_slugs": [m["slug"] for m in module_list],
+        "roles": roles,
+        "base_path": "",
+        "api_url": "",
+        "infrastructure": infra,
+        "security": security,
+        "deployment": deployment,
+        "integrations": integrations,
+        "genome": genome,
+    }
+
+    # Walk template tree and render
+    for dirpath, dirnames, filenames in os.walk(tmpl_dir):
+        dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+        for fname in filenames:
+            if not fname.endswith(".j2"):
+                continue
+            full_path = os.path.join(dirpath, fname)
+            rel_tmpl = os.path.relpath(full_path, tmpl_dir).replace(os.sep, "/")
+            stem = fname[:-3]  # strip .j2
+            parent_dir = os.path.relpath(dirpath, tmpl_dir).replace(os.sep, "/")
+            if parent_dir == ".":
+                parent_dir = ""
+
+            # Check if this is an entity template
+            is_entity_tmpl = False
+            for etmpl, out_suffix in ENTITY_TEMPLATES.items():
+                if stem == etmpl or stem.startswith(etmpl):
+                    is_entity_tmpl = True
+                    if not module_list:
+                        break
+                    for mod in module_list:
+                        ctx = dict(global_ctx)
+                        ctx.update({
+                            "entity_name": mod["name"],
+                            "entity_slug": mod["slug"],
+                            "fields": mod["fields"],
+                            "has_state_machine": mod["has_state_machine"],
+                            "state_machine_field": mod["state_machine_field"],
+                            "operations": mod["operations"],
+                        })
+                        out_path = f"app/(protected)/{mod['slug']}/{out_suffix}"
+                        try:
+                            tmpl = env.get_template(rel_tmpl)
+                            files[out_path] = tmpl.render(**ctx)
+                        except Exception as e:
+                            errors.append(f"{rel_tmpl} for {mod['slug']}: {e}")
+                    break
+
+            if is_entity_tmpl:
+                continue
+
+            # Global template -- render once
+            out_path = parent_dir + ("/" if parent_dir else "") + stem
+            ctx = dict(global_ctx)
+            # marketing page and landing page -- skip if no public marketing content needed
+            if stem in ("marketing_page", ) and not global_ctx.get("marketing"):
+                continue
+            try:
+                tmpl = env.get_template(rel_tmpl)
+                files[out_path] = tmpl.render(**ctx)
+            except Exception as e:
+                errors.append(f"{rel_tmpl}: {e}")
+
+    return {"files": files, "errors": errors}

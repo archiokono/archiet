@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 import { useRouter } from "next/navigation"
 
 // Prefix all fetch calls with basePath so they hit the Next.js rewrite proxy
-const _BASE_PATH = ""
+const _BASE_PATH = "/apps/5373"
 
 type User = {
   id: string
