@@ -3,9 +3,9 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 
-const BASE_PATH = "/apps/5373"
+const BASE_PATH: string = ""
 
-const PUBLIC_PATHS = ["/login", "/register", "/auth/", "/api/auth/", "/_next", "/favicon.ico"]
+const PUBLIC_PATHS = ["/", "/login", "/register", "/auth/", "/api/auth/", "/_next", "/favicon.ico"]
 
 function stripBasePath(pathname: string): string {
   if (BASE_PATH && pathname.startsWith(BASE_PATH)) {

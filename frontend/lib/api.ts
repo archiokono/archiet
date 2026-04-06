@@ -5,7 +5,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
 // When basePath is set (nginx subpath proxy), API calls must be prefixed with the
 // basePath so they route through Next.js and hit the /api rewrite.
 
-const _BASE_PATH = "/apps/5373"
+const _BASE_PATH = ""
 
 
 export class ApiError extends Error {

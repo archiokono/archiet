@@ -46,7 +46,7 @@ const securityHeaders = [
 const nextConfig = {
 
   // Subpath deployment — all assets/routes served under this prefix
-  basePath: "/apps/5373",
+  basePath: "",
 
 
   // Hardened security headers on all routes

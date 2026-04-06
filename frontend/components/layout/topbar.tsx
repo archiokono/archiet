@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 
-const BASE_PATH = "/apps/5373"
+const BASE_PATH = ""
 
 
 function useBreadcrumbs() {
