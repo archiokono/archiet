@@ -1,0 +1,21 @@
+{# salesforce_apex/sfdx_project.json.j2 #}
+{# Generates sfdx-project.json — Salesforce DX project configuration. #}
+{# Context: solution_id, bundle_id, solution_name, spec_hash #}
+{
+    "packageDirectories": [
+        {
+            "path": "force-app/main/default",
+            "default": true
+        }
+    ],
+    "name": "{{ solution_name | lower | replace(' ', '-') }}",
+    "namespace": "",
+    "sfdcLoginUrl": "https://login.salesforce.com",
+    "sourceApiVersion": "60.0",
+    "archie": {
+        "solution_id": {{ solution_id }},
+        "bundle_id": "{{ bundle_id }}",
+        "spec_hash": "{{ spec_hash }}",
+        "generated_at": "{{ generated_at }}"
+    }
+}

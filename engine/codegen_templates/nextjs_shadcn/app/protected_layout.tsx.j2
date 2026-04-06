@@ -1,0 +1,99 @@
+{# app/(protected)/layout.tsx — Sidebar navigation + user menu + RequireAuth wrapper.
+   Context: solution_name, modules (dict of {key: {aggregate_root, slug}}), entity_slugs (list) #}
+"use client"
+
+// Prevent Next.js from statically pre-rendering auth-gated routes
+export const dynamic = "force-dynamic"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { RequireAuth } from "@/components/require-auth"
+import { useAuth } from "@/lib/auth-context"
+import {
+  LayoutDashboard, LogOut, Settings, ChevronDown, Menu,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useState } from "react"
+
+const NAV_ITEMS = [
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+{% for slug in entity_slugs %}
+  { label: "{{ slug | replace('_', ' ') | title }}s", href: "/{{ slug }}" },
+{% endfor %}
+]
+
+export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const { user, logout } = useAuth()
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  return (
+    <RequireAuth>
+      <div className="flex h-screen overflow-hidden">
+        {/* Sidebar */}
+        <aside className={`${sidebarOpen ? "w-64" : "w-0 -ml-64"} flex flex-col border-r bg-card transition-all duration-200`}>
+          <div className="flex h-14 items-center border-b px-4">
+            <span className="text-lg font-semibold">{{ solution_name | default('App') }}</span>
+          </div>
+          <nav className="flex-1 space-y-1 p-2">
+            {NAV_ITEMS.map((item) => {
+              const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
+              const Icon = item.icon
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+                    isActive
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {Icon && <Icon className="h-4 w-4" />}
+                  {item.label}
+                </Link>
+              )
+            })}
+          </nav>
+        </aside>
+
+        {/* Main area */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* Top bar */}
+          <header className="flex h-14 items-center justify-between border-b px-4">
+            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
+              <Menu className="h-4 w-4" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  {user?.email ?? "User"}
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/settings"><Settings className="mr-2 h-4 w-4" />Settings</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}>
+                  <LogOut className="mr-2 h-4 w-4" />Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </header>
+
+          {/* Page content */}
+          <main className="flex-1 overflow-y-auto">
+            <div className="container mx-auto p-6">
+              {children}
+            </div>
+          </main>
+        </div>
+      </div>
+    </RequireAuth>
+  )
+}

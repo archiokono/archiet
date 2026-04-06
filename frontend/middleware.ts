@@ -1,0 +1,65 @@
+
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+
+
+const BASE_PATH = "/apps/5373"
+
+const PUBLIC_PATHS = ["/login", "/register", "/auth/", "/api/auth/", "/_next", "/favicon.ico"]
+
+function stripBasePath(pathname: string): string {
+  if (BASE_PATH && pathname.startsWith(BASE_PATH)) {
+    return pathname.slice(BASE_PATH.length) || "/"
+  }
+  return pathname
+}
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  const localPath = stripBasePath(pathname)
+
+  // Allow public paths and static assets
+  if (PUBLIC_PATHS.some((p) => localPath.startsWith(p)) || localPath.includes(".")) {
+    return NextResponse.next()
+  }
+
+  // Read JWT from httpOnly cookie
+  const token = request.cookies.get("token")?.value
+
+  if (!token) {
+    const loginUrl = new URL(BASE_PATH + "/login", request.url)
+    loginUrl.searchParams.set("from", pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  // Decode JWT to check expiry (without full verification — that's the API's job)
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]))
+    const now = Math.floor(Date.now() / 1000)
+    if (payload.exp && payload.exp < now) {
+      // Token expired — redirect to login
+      const response = NextResponse.redirect(new URL(BASE_PATH + "/login", request.url))
+      response.cookies.delete("token")
+      return response
+    }
+
+    // Forward user info to downstream components via headers
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set("x-user-id", payload.sub || "")
+    requestHeaders.set("x-user-email", payload.email || "")
+    if (payload.organization_id) {
+      requestHeaders.set("x-organization-id", payload.organization_id)
+    }
+
+    return NextResponse.next({ request: { headers: requestHeaders } })
+  } catch {
+    // Malformed token — redirect to login
+    const response = NextResponse.redirect(new URL(BASE_PATH + "/login", request.url))
+    response.cookies.delete("token")
+    return response
+  }
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+}

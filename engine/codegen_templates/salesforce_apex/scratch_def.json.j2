@@ -1,0 +1,20 @@
+{# salesforce_apex/scratch_def.json.j2 #}
+{# Scratch org definition for CI/CD pipeline. #}
+{
+    "orgName": "{{ solution_name }} - Scratch Org",
+    "edition": "Developer",
+    "features": ["EnableSetPasswordInApi", "AuthorApex"],
+    "settings": {
+        "lightningExperienceSettings": {
+            "enableS1DesktopEnabled": true
+        },
+        "securitySettings": {
+            "passwordPolicies": {
+                "enableSetPasswordInApi": true
+            }
+        },
+        "mobileSettings": {
+            "enableS1EncryptedStoragePref2": false
+        }
+    }
+}

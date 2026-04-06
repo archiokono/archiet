@@ -1,0 +1,3354 @@
+genome_version: 1.0.0
+solution_id: 5373
+solution_name: Archiet — AI-Native Architecture-to-Code SaaS Platform
+generated_at: '2026-04-06T18:28:31.148727+00:00'
+language: python-flask
+problem:
+  statement: Archiet — AI-Native Architecture-to-Code SaaS Platform
+  business_domain: technology
+modules:
+  smtp_relay_gcp:
+    aggregate_root: SmtpRelayGcp
+    entities:
+    - SmtpRelayGcp
+    archimate_element_ids:
+    - 963
+    _rationale: Microsoft IIS SMTP Relay server for Legacy GCPAT environment. Mail
+      is sent outbound with a SendGrid subscription. Permissions to send mail are
+      granted by IP relay restrictions.
+    fields:
+      SmtpRelayGcp:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_smtp_relay_gcp:
+        type: command
+        input: SmtpRelayGcpDraft
+        output: SmtpRelayGcpId
+      get_smtp_relay_gcp:
+        type: query
+        input: SmtpRelayGcpId
+        output: SmtpRelayGcpDetail
+      list_smtp_relay_gcps:
+        type: query
+        output: Page<SmtpRelayGcpSummary>
+      update_smtp_relay_gcp:
+        type: command
+        input: SmtpRelayGcpUpdate
+        output: SmtpRelayGcpDetail
+      delete_smtp_relay_gcp:
+        type: command
+        input: SmtpRelayGcpId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  primary_data_store:
+    aggregate_root: PrimaryDataStore
+    entities:
+    - PrimaryDataStore
+    archimate_element_ids:
+    - 3150
+    _rationale: Main database or storage system for the solution
+    fields:
+      PrimaryDataStore:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: storage_type
+        type: string
+        max_length: 50
+      - name: capacity
+        type: string
+        max_length: 50
+      - name: connection_string
+        type: string
+        max_length: 500
+        description: 'Sensitive: encrypted at rest'
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_primary_data_store:
+        type: command
+        input: PrimaryDataStoreDraft
+        output: PrimaryDataStoreId
+      get_primary_data_store:
+        type: query
+        input: PrimaryDataStoreId
+        output: PrimaryDataStoreDetail
+      list_primary_data_stores:
+        type: query
+        output: Page<PrimaryDataStoreSummary>
+      update_primary_data_store:
+        type: command
+        input: PrimaryDataStoreUpdate
+        output: PrimaryDataStoreDetail
+      delete_primary_data_store:
+        type: command
+        input: PrimaryDataStoreId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - storage_type
+        - capacity
+        - connection_string
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - storage_type
+        - capacity
+        - connection_string
+        - status
+  identity_and_access_management:
+    aggregate_root: IdentityAndAccessManagement
+    entities:
+    - IdentityAndAccessManagement
+    archimate_element_ids:
+    - 3153
+    _rationale: IAM system for authentication and authorization
+    fields:
+      IdentityAndAccessManagement:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_identity_and_access_management:
+        type: command
+        input: IdentityAndAccessManagementDraft
+        output: IdentityAndAccessManagementId
+      get_identity_and_access_management:
+        type: query
+        input: IdentityAndAccessManagementId
+        output: IdentityAndAccessManagementDetail
+      list_identity_and_access_managements:
+        type: query
+        output: Page<IdentityAndAccessManagementSummary>
+      update_identity_and_access_management:
+        type: command
+        input: IdentityAndAccessManagementUpdate
+        output: IdentityAndAccessManagementDetail
+      delete_identity_and_access_management:
+        type: command
+        input: IdentityAndAccessManagementId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  authentication_service:
+    aggregate_root: AuthenticationService
+    entities:
+    - AuthenticationService
+    archimate_element_ids:
+    - 2863
+    _rationale: 'Inferred from ApplicationService: Authentication Service'
+    fields:
+      AuthenticationService:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: endpoint_url
+        type: string
+        format: url
+        max_length: 500
+      - name: service_type
+        type: string
+        max_length: 50
+      - name: version
+        type: string
+        max_length: 20
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_authentication_service:
+        type: command
+        input: AuthenticationServiceDraft
+        output: AuthenticationServiceId
+      get_authentication_service:
+        type: query
+        input: AuthenticationServiceId
+        output: AuthenticationServiceDetail
+      list_authentication_services:
+        type: query
+        output: Page<AuthenticationServiceSummary>
+      update_authentication_service:
+        type: command
+        input: AuthenticationServiceUpdate
+        output: AuthenticationServiceDetail
+      delete_authentication_service:
+        type: command
+        input: AuthenticationServiceId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - endpoint_url
+        - service_type
+        - version
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - endpoint_url
+        - service_type
+        - version
+        - status
+  monitoring_platform:
+    aggregate_root: MonitoringPlatform
+    entities:
+    - MonitoringPlatform
+    archimate_element_ids:
+    - 3156
+    _rationale: Observability stack (metrics, logs, traces)
+    fields:
+      MonitoringPlatform:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_monitoring_platform:
+        type: command
+        input: MonitoringPlatformDraft
+        output: MonitoringPlatformId
+      get_monitoring_platform:
+        type: query
+        input: MonitoringPlatformId
+        output: MonitoringPlatformDetail
+      list_monitoring_platforms:
+        type: query
+        output: Page<MonitoringPlatformSummary>
+      update_monitoring_platform:
+        type: command
+        input: MonitoringPlatformUpdate
+        output: MonitoringPlatformDetail
+      delete_monitoring_platform:
+        type: command
+        input: MonitoringPlatformId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  analytics_engine:
+    aggregate_root: AnalyticsEngine
+    entities:
+    - AnalyticsEngine
+    archimate_element_ids:
+    - 3159
+    _rationale: Data processing and analytics computation platform
+    fields:
+      AnalyticsEngine:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: metric_name
+        type: string
+        max_length: 100
+        required: true
+      - name: value
+        type: decimal
+      - name: target
+        type: decimal
+      - name: unit
+        type: string
+        max_length: 20
+      - name: measured_at
+        type: datetime
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_analytics_engine:
+        type: command
+        input: AnalyticsEngineDraft
+        output: AnalyticsEngineId
+      get_analytics_engine:
+        type: query
+        input: AnalyticsEngineId
+        output: AnalyticsEngineDetail
+      list_analytics_engines:
+        type: query
+        output: Page<AnalyticsEngineSummary>
+      update_analytics_engine:
+        type: command
+        input: AnalyticsEngineUpdate
+        output: AnalyticsEngineDetail
+      delete_analytics_engine:
+        type: command
+        input: AnalyticsEngineId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - metric_name
+        - value
+        - target
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - metric_name
+        - value
+        - target
+        - unit
+        - measured_at
+        - status
+  reporting_service:
+    aggregate_root: ReportingService
+    entities:
+    - ReportingService
+    archimate_element_ids:
+    - 3272
+    _rationale: Dashboards, reports, and data visualization
+    fields:
+      ReportingService:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: title
+        type: string
+        max_length: 500
+      - name: document_type
+        type: string
+        max_length: 50
+      - name: effective_date
+        type: datetime
+      - name: expiry_date
+        type: datetime
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_reporting_service:
+        type: command
+        input: ReportingServiceDraft
+        output: ReportingServiceId
+      get_reporting_service:
+        type: query
+        input: ReportingServiceId
+        output: ReportingServiceDetail
+      list_reporting_services:
+        type: query
+        output: Page<ReportingServiceSummary>
+      update_reporting_service:
+        type: command
+        input: ReportingServiceUpdate
+        output: ReportingServiceDetail
+      delete_reporting_service:
+        type: command
+        input: ReportingServiceId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - title
+        - document_type
+        - effective_date
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - title
+        - document_type
+        - effective_date
+        - expiry_date
+        - status
+  gcp_cohesity_for_systems_backup:
+    aggregate_root: GcpCohesityForSystemsBackup
+    entities:
+    - GcpCohesityForSystemsBackup
+    archimate_element_ids:
+    - 908
+    _rationale: Cohesity backup system is running from Alpharetta, GA, USA and backing
+      up servers and VM's across USA, Europe and Asia for all Legacy GCPAT systems.
+    fields:
+      GcpCohesityForSystemsBackup:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_gcp_cohesity_for_systems_backup:
+        type: command
+        input: GcpCohesityForSystemsBackupDraft
+        output: GcpCohesityForSystemsBackupId
+      get_gcp_cohesity_for_systems_backup:
+        type: query
+        input: GcpCohesityForSystemsBackupId
+        output: GcpCohesityForSystemsBackupDetail
+      list_gcp_cohesity_for_systems_backups:
+        type: query
+        output: Page<GcpCohesityForSystemsBackupSummary>
+      update_gcp_cohesity_for_systems_backup:
+        type: command
+        input: GcpCohesityForSystemsBackupUpdate
+        output: GcpCohesityForSystemsBackupDetail
+      delete_gcp_cohesity_for_systems_backup:
+        type: command
+        input: GcpCohesityForSystemsBackupId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  api_gateway:
+    aggregate_root: ApiGateway
+    entities:
+    - ApiGateway
+    archimate_element_ids:
+    - 3163
+    _rationale: Request routing, rate limiting, authentication proxy
+    fields:
+      ApiGateway:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: endpoint_url
+        type: string
+        format: url
+        max_length: 500
+      - name: service_type
+        type: string
+        max_length: 50
+      - name: version
+        type: string
+        max_length: 20
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_api_gateway:
+        type: command
+        input: ApiGatewayDraft
+        output: ApiGatewayId
+      get_api_gateway:
+        type: query
+        input: ApiGatewayId
+        output: ApiGatewayDetail
+      list_api_gateways:
+        type: query
+        output: Page<ApiGatewaySummary>
+      update_api_gateway:
+        type: command
+        input: ApiGatewayUpdate
+        output: ApiGatewayDetail
+      delete_api_gateway:
+        type: command
+        input: ApiGatewayId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - endpoint_url
+        - service_type
+        - version
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - endpoint_url
+        - service_type
+        - version
+        - status
+  message_broker:
+    aggregate_root: MessageBroker
+    entities:
+    - MessageBroker
+    archimate_element_ids:
+    - 3162
+    _rationale: Async messaging platform (RabbitMQ, Kafka, SQS)
+    fields:
+      MessageBroker:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_message_broker:
+        type: command
+        input: MessageBrokerDraft
+        output: MessageBrokerId
+      get_message_broker:
+        type: query
+        input: MessageBrokerId
+        output: MessageBrokerDetail
+      list_message_brokers:
+        type: query
+        output: Page<MessageBrokerSummary>
+      update_message_broker:
+        type: command
+        input: MessageBrokerUpdate
+        output: MessageBrokerDetail
+      delete_message_broker:
+        type: command
+        input: MessageBrokerId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  business_logic_layer:
+    aggregate_root: BusinessLogicLayer
+    entities:
+    - BusinessLogicLayer
+    archimate_element_ids:
+    - 8335
+    _rationale: Core processing and orchestration
+    fields:
+      BusinessLogicLayer:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_business_logic_layer:
+        type: command
+        input: BusinessLogicLayerDraft
+        output: BusinessLogicLayerId
+      get_business_logic_layer:
+        type: query
+        input: BusinessLogicLayerId
+        output: BusinessLogicLayerDetail
+      list_business_logic_layers:
+        type: query
+        output: Page<BusinessLogicLayerSummary>
+      update_business_logic_layer:
+        type: command
+        input: BusinessLogicLayerUpdate
+        output: BusinessLogicLayerDetail
+      delete_business_logic_layer:
+        type: command
+        input: BusinessLogicLayerId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  core_business_function:
+    aggregate_root: CoreBusinessFunction
+    entities:
+    - CoreBusinessFunction
+    archimate_element_ids:
+    - 8352
+    _rationale: Main business processing logic
+    fields:
+      CoreBusinessFunction:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_core_business_function:
+        type: command
+        input: CoreBusinessFunctionDraft
+        output: CoreBusinessFunctionId
+      get_core_business_function:
+        type: query
+        input: CoreBusinessFunctionId
+        output: CoreBusinessFunctionDetail
+      list_core_business_functions:
+        type: query
+        output: Page<CoreBusinessFunctionSummary>
+      update_core_business_function:
+        type: command
+        input: CoreBusinessFunctionUpdate
+        output: CoreBusinessFunctionDetail
+      delete_core_business_function:
+        type: command
+        input: CoreBusinessFunctionId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  core_business_api:
+    aggregate_root: CoreBusinessApi
+    entities:
+    - CoreBusinessApi
+    archimate_element_ids:
+    - 8334
+    _rationale: Primary API surface
+    fields:
+      CoreBusinessApi:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: endpoint_url
+        type: string
+        format: url
+        max_length: 500
+      - name: service_type
+        type: string
+        max_length: 50
+      - name: version
+        type: string
+        max_length: 20
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_core_business_api:
+        type: command
+        input: CoreBusinessApiDraft
+        output: CoreBusinessApiId
+      get_core_business_api:
+        type: query
+        input: CoreBusinessApiId
+        output: CoreBusinessApiDetail
+      list_core_business_apis:
+        type: query
+        output: Page<CoreBusinessApiSummary>
+      update_core_business_api:
+        type: command
+        input: CoreBusinessApiUpdate
+        output: CoreBusinessApiDetail
+      delete_core_business_api:
+        type: command
+        input: CoreBusinessApiId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - endpoint_url
+        - service_type
+        - version
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - endpoint_url
+        - service_type
+        - version
+        - status
+  frontend_application:
+    aggregate_root: FrontendApplication
+    entities:
+    - FrontendApplication
+    archimate_element_ids:
+    - 8320
+    _rationale: Client-side application (SPA, mobile app, or desktop)
+    fields:
+      FrontendApplication:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_frontend_application:
+        type: command
+        input: FrontendApplicationDraft
+        output: FrontendApplicationId
+      get_frontend_application:
+        type: query
+        input: FrontendApplicationId
+        output: FrontendApplicationDetail
+      list_frontend_applications:
+        type: query
+        output: Page<FrontendApplicationSummary>
+      update_frontend_application:
+        type: command
+        input: FrontendApplicationUpdate
+        output: FrontendApplicationDetail
+      delete_frontend_application:
+        type: command
+        input: FrontendApplicationId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  active_directory_ad:
+    aggregate_root: ActiveDirectoryAd
+    entities:
+    - ActiveDirectoryAd
+    archimate_element_ids:
+    - 163
+    _rationale: 'Active Directory (AD) is Microsoft''s proprietary directory service.
+      It plays the role of technical directory in the Saint-Gobain context to manage
+      all user objects, computers objects (PC and servers) and security strategy (GPO).
+
+
+      Protocols used: RPC, NTLMv2, kerberos, SMBv2,WMI, LDAP/S'
+    fields:
+      ActiveDirectoryAd:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_active_directory_ad:
+        type: command
+        input: ActiveDirectoryAdDraft
+        output: ActiveDirectoryAdId
+      get_active_directory_ad:
+        type: query
+        input: ActiveDirectoryAdId
+        output: ActiveDirectoryAdDetail
+      list_active_directory_ads:
+        type: query
+        output: Page<ActiveDirectoryAdSummary>
+      update_active_directory_ad:
+        type: command
+        input: ActiveDirectoryAdUpdate
+        output: ActiveDirectoryAdDetail
+      delete_active_directory_ad:
+        type: command
+        input: ActiveDirectoryAdId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  notification_service:
+    aggregate_root: NotificationService
+    entities:
+    - NotificationService
+    archimate_element_ids:
+    - 3328
+    _rationale: Service to send notifications to customers about policy updates and
+      claim status.
+    fields:
+      NotificationService:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: endpoint_url
+        type: string
+        format: url
+        max_length: 500
+      - name: service_type
+        type: string
+        max_length: 50
+      - name: version
+        type: string
+        max_length: 20
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_notification_service:
+        type: command
+        input: NotificationServiceDraft
+        output: NotificationServiceId
+      get_notification_service:
+        type: query
+        input: NotificationServiceId
+        output: NotificationServiceDetail
+      list_notification_services:
+        type: query
+        output: Page<NotificationServiceSummary>
+      update_notification_service:
+        type: command
+        input: NotificationServiceUpdate
+        output: NotificationServiceDetail
+      delete_notification_service:
+        type: command
+        input: NotificationServiceId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - endpoint_url
+        - service_type
+        - version
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - endpoint_url
+        - service_type
+        - version
+        - status
+  google_gemini_models:
+    aggregate_root: GoogleGeminiModels
+    entities:
+    - GoogleGeminiModels
+    archimate_element_ids:
+    - 1133
+    _rationale: Purpose of this application is to give access in a secure way to Google
+      Generative AI models (GEMINI models) to address a wider range of Generative
+      AI applications in Saint-Gobain
+    fields:
+      GoogleGeminiModels:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_google_gemini_models:
+        type: command
+        input: GoogleGeminiModelsDraft
+        output: GoogleGeminiModelsId
+      get_google_gemini_models:
+        type: query
+        input: GoogleGeminiModelsId
+        output: GoogleGeminiModelsDetail
+      list_google_gemini_modelss:
+        type: query
+        output: Page<GoogleGeminiModelsSummary>
+      update_google_gemini_models:
+        type: command
+        input: GoogleGeminiModelsUpdate
+        output: GoogleGeminiModelsDetail
+      delete_google_gemini_models:
+        type: command
+        input: GoogleGeminiModelsId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  veritas_netbackup_saa_s:
+    aggregate_root: VeritasNetbackupSaaS
+    entities:
+    - VeritasNetbackupSaaS
+    archimate_element_ids:
+    - 687
+    _rationale: https://sguki.atlassian.net/wiki/x/aAB6E
+    fields:
+      VeritasNetbackupSaaS:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_veritas_netbackup_saa_s:
+        type: command
+        input: VeritasNetbackupSaaSDraft
+        output: VeritasNetbackupSaaSId
+      get_veritas_netbackup_saa_s:
+        type: query
+        input: VeritasNetbackupSaaSId
+        output: VeritasNetbackupSaaSDetail
+      list_veritas_netbackup_saa_ss:
+        type: query
+        output: Page<VeritasNetbackupSaaSSummary>
+      update_veritas_netbackup_saa_s:
+        type: command
+        input: VeritasNetbackupSaaSUpdate
+        output: VeritasNetbackupSaaSDetail
+      delete_veritas_netbackup_saa_s:
+        type: command
+        input: VeritasNetbackupSaaSId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  blueprint_journey_interface:
+    aggregate_root: BlueprintJourneyInterface
+    entities:
+    - BlueprintJourneyInterface
+    archimate_element_ids:
+    - 8728
+    _rationale: Interactive UI guiding users through the 8-step AI-powered architecture
+      generation workflow with real-time conversation and progress tracking
+    fields:
+      BlueprintJourneyInterface:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_blueprint_journey_interface:
+        type: command
+        input: BlueprintJourneyInterfaceDraft
+        output: BlueprintJourneyInterfaceId
+      get_blueprint_journey_interface:
+        type: query
+        input: BlueprintJourneyInterfaceId
+        output: BlueprintJourneyInterfaceDetail
+      list_blueprint_journey_interfaces:
+        type: query
+        output: Page<BlueprintJourneyInterfaceSummary>
+      update_blueprint_journey_interface:
+        type: command
+        input: BlueprintJourneyInterfaceUpdate
+        output: BlueprintJourneyInterfaceDetail
+      delete_blueprint_journey_interface:
+        type: command
+        input: BlueprintJourneyInterfaceId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  architecture_template_gallery:
+    aggregate_root: ArchitectureTemplateGallery
+    entities:
+    - ArchitectureTemplateGallery
+    archimate_element_ids:
+    - 8729
+    _rationale: Public gallery for browsing and cloning reusable architecture templates
+      with previews and usage statistics
+    fields:
+      ArchitectureTemplateGallery:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_architecture_template_gallery:
+        type: command
+        input: ArchitectureTemplateGalleryDraft
+        output: ArchitectureTemplateGalleryId
+      get_architecture_template_gallery:
+        type: query
+        input: ArchitectureTemplateGalleryId
+        output: ArchitectureTemplateGalleryDetail
+      list_architecture_template_gallerys:
+        type: query
+        output: Page<ArchitectureTemplateGallerySummary>
+      update_architecture_template_gallery:
+        type: command
+        input: ArchitectureTemplateGalleryUpdate
+        output: ArchitectureTemplateGalleryDetail
+      delete_architecture_template_gallery:
+        type: command
+        input: ArchitectureTemplateGalleryId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  blueprint_public_viewer:
+    aggregate_root: BlueprintPublicViewer
+    entities:
+    - BlueprintPublicViewer
+    archimate_element_ids:
+    - 8732
+    _rationale: Public-facing blueprint visualization with shareable URLs for end-user
+      consumption
+    fields:
+      BlueprintPublicViewer:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_blueprint_public_viewer:
+        type: command
+        input: BlueprintPublicViewerDraft
+        output: BlueprintPublicViewerId
+      get_blueprint_public_viewer:
+        type: query
+        input: BlueprintPublicViewerId
+        output: BlueprintPublicViewerDetail
+      list_blueprint_public_viewers:
+        type: query
+        output: Page<BlueprintPublicViewerSummary>
+      update_blueprint_public_viewer:
+        type: command
+        input: BlueprintPublicViewerUpdate
+        output: BlueprintPublicViewerDetail
+      delete_blueprint_public_viewer:
+        type: command
+        input: BlueprintPublicViewerId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  cicd_toolchain:
+    aggregate_root: CicdToolchain
+    entities:
+    - CicdToolchain
+    archimate_element_ids:
+    - 8739
+    _rationale: Build, test, and deployment automation platform
+    fields:
+      CicdToolchain:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_cicd_toolchain:
+        type: command
+        input: CicdToolchainDraft
+        output: CicdToolchainId
+      get_cicd_toolchain:
+        type: query
+        input: CicdToolchainId
+        output: CicdToolchainDetail
+      list_cicd_toolchains:
+        type: query
+        output: Page<CicdToolchainSummary>
+      update_cicd_toolchain:
+        type: command
+        input: CicdToolchainUpdate
+        output: CicdToolchainDetail
+      delete_cicd_toolchain:
+        type: command
+        input: CicdToolchainId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  cicd_pipeline:
+    aggregate_root: CicdPipeline
+    entities:
+    - CicdPipeline
+    archimate_element_ids:
+    - 8740
+    _rationale: Automated deployment pipeline for the SaaS platform with testing and
+      rollback capabilities
+    fields:
+      CicdPipeline:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_cicd_pipeline:
+        type: command
+        input: CicdPipelineDraft
+        output: CicdPipelineId
+      get_cicd_pipeline:
+        type: query
+        input: CicdPipelineId
+        output: CicdPipelineDetail
+      list_cicd_pipelines:
+        type: query
+        output: Page<CicdPipelineSummary>
+      update_cicd_pipeline:
+        type: command
+        input: CicdPipelineUpdate
+        output: CicdPipelineDetail
+      delete_cicd_pipeline:
+        type: command
+        input: CicdPipelineId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  health_monitoring:
+    aggregate_root: HealthMonitoring
+    entities:
+    - HealthMonitoring
+    archimate_element_ids:
+    - 8741
+    _rationale: Health check endpoints and monitoring for platform availability and
+      performance
+    fields:
+      HealthMonitoring:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_health_monitoring:
+        type: command
+        input: HealthMonitoringDraft
+        output: HealthMonitoringId
+      get_health_monitoring:
+        type: query
+        input: HealthMonitoringId
+        output: HealthMonitoringDetail
+      list_health_monitorings:
+        type: query
+        output: Page<HealthMonitoringSummary>
+      update_health_monitoring:
+        type: command
+        input: HealthMonitoringUpdate
+        output: HealthMonitoringDetail
+      delete_health_monitoring:
+        type: command
+        input: HealthMonitoringId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  genome_spec_generator:
+    aggregate_root: GenomeSpecGenerator
+    entities:
+    - GenomeSpecGenerator
+    archimate_element_ids:
+    - 8750
+    _rationale: Generates comprehensive architecture specifications including entity
+      definitions, relationship maps, and OpenAPI specs
+    fields:
+      GenomeSpecGenerator:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_genome_spec_generator:
+        type: command
+        input: GenomeSpecGeneratorDraft
+        output: GenomeSpecGeneratorId
+      get_genome_spec_generator:
+        type: query
+        input: GenomeSpecGeneratorId
+        output: GenomeSpecGeneratorDetail
+      list_genome_spec_generators:
+        type: query
+        output: Page<GenomeSpecGeneratorSummary>
+      update_genome_spec_generator:
+        type: command
+        input: GenomeSpecGeneratorUpdate
+        output: GenomeSpecGeneratorDetail
+      delete_genome_spec_generator:
+        type: command
+        input: GenomeSpecGeneratorId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  code_generation_service:
+    aggregate_root: CodeGenerationService
+    entities:
+    - CodeGenerationService
+    archimate_element_ids:
+    - 8751
+    _rationale: Generates production-ready codebases from GenomeSpecs with full stack
+      implementation
+    fields:
+      CodeGenerationService:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: endpoint_url
+        type: string
+        format: url
+        max_length: 500
+      - name: service_type
+        type: string
+        max_length: 50
+      - name: version
+        type: string
+        max_length: 20
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_code_generation_service:
+        type: command
+        input: CodeGenerationServiceDraft
+        output: CodeGenerationServiceId
+      get_code_generation_service:
+        type: query
+        input: CodeGenerationServiceId
+        output: CodeGenerationServiceDetail
+      list_code_generation_services:
+        type: query
+        output: Page<CodeGenerationServiceSummary>
+      update_code_generation_service:
+        type: command
+        input: CodeGenerationServiceUpdate
+        output: CodeGenerationServiceDetail
+      delete_code_generation_service:
+        type: command
+        input: CodeGenerationServiceId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - endpoint_url
+        - service_type
+        - version
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - endpoint_url
+        - service_type
+        - version
+        - status
+  export_service:
+    aggregate_root: ExportService
+    entities:
+    - ExportService
+    archimate_element_ids:
+    - 8752
+    _rationale: Handles multiple export formats including PDF, Notion, Confluence,
+      Markdown, and GitHub
+    fields:
+      ExportService:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: endpoint_url
+        type: string
+        format: url
+        max_length: 500
+      - name: service_type
+        type: string
+        max_length: 50
+      - name: version
+        type: string
+        max_length: 20
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_export_service:
+        type: command
+        input: ExportServiceDraft
+        output: ExportServiceId
+      get_export_service:
+        type: query
+        input: ExportServiceId
+        output: ExportServiceDetail
+      list_export_services:
+        type: query
+        output: Page<ExportServiceSummary>
+      update_export_service:
+        type: command
+        input: ExportServiceUpdate
+        output: ExportServiceDetail
+      delete_export_service:
+        type: command
+        input: ExportServiceId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - endpoint_url
+        - service_type
+        - version
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - endpoint_url
+        - service_type
+        - version
+        - status
+  journey_session_orchestrator:
+    aggregate_root: JourneySessionOrchestrator
+    entities:
+    - JourneySessionOrchestrator
+    archimate_element_ids:
+    - 8753
+    _rationale: Orchestrates the 8-step AI conversation workflow with state management
+      and pause/resume capabilities
+    fields:
+      JourneySessionOrchestrator:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_journey_session_orchestrator:
+        type: command
+        input: JourneySessionOrchestratorDraft
+        output: JourneySessionOrchestratorId
+      get_journey_session_orchestrator:
+        type: query
+        input: JourneySessionOrchestratorId
+        output: JourneySessionOrchestratorDetail
+      list_journey_session_orchestrators:
+        type: query
+        output: Page<JourneySessionOrchestratorSummary>
+      update_journey_session_orchestrator:
+        type: command
+        input: JourneySessionOrchestratorUpdate
+        output: JourneySessionOrchestratorDetail
+      delete_journey_session_orchestrator:
+        type: command
+        input: JourneySessionOrchestratorId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  stripe_webhook_handler:
+    aggregate_root: StripeWebhookHandler
+    entities:
+    - StripeWebhookHandler
+    archimate_element_ids:
+    - 8763
+    _rationale: Processes Stripe billing events to update subscription status and
+      trigger workflows
+    fields:
+      StripeWebhookHandler:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_stripe_webhook_handler:
+        type: command
+        input: StripeWebhookHandlerDraft
+        output: StripeWebhookHandlerId
+      get_stripe_webhook_handler:
+        type: query
+        input: StripeWebhookHandlerId
+        output: StripeWebhookHandlerDetail
+      list_stripe_webhook_handlers:
+        type: query
+        output: Page<StripeWebhookHandlerSummary>
+      update_stripe_webhook_handler:
+        type: command
+        input: StripeWebhookHandlerUpdate
+        output: StripeWebhookHandlerDetail
+      delete_stripe_webhook_handler:
+        type: command
+        input: StripeWebhookHandlerId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  row_level_security_enforcer:
+    aggregate_root: RowLevelSecurityEnforcer
+    entities:
+    - RowLevelSecurityEnforcer
+    archimate_element_ids:
+    - 8743
+    _rationale: Enforces workspace isolation at database query level for all data
+      access
+    fields:
+      RowLevelSecurityEnforcer:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_row_level_security_enforcer:
+        type: command
+        input: RowLevelSecurityEnforcerDraft
+        output: RowLevelSecurityEnforcerId
+      get_row_level_security_enforcer:
+        type: query
+        input: RowLevelSecurityEnforcerId
+        output: RowLevelSecurityEnforcerDetail
+      list_row_level_security_enforcers:
+        type: query
+        output: Page<RowLevelSecurityEnforcerSummary>
+      update_row_level_security_enforcer:
+        type: command
+        input: RowLevelSecurityEnforcerUpdate
+        output: RowLevelSecurityEnforcerDetail
+      delete_row_level_security_enforcer:
+        type: command
+        input: RowLevelSecurityEnforcerId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  gdpr_compliance_service:
+    aggregate_root: GdprComplianceService
+    entities:
+    - GdprComplianceService
+    archimate_element_ids:
+    - 8744
+    _rationale: Manages data deletion and export requests with 30-day cascade deletion
+      and 24-hour export processing
+    fields:
+      GdprComplianceService:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: endpoint_url
+        type: string
+        format: url
+        max_length: 500
+      - name: service_type
+        type: string
+        max_length: 50
+      - name: version
+        type: string
+        max_length: 20
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_gdpr_compliance_service:
+        type: command
+        input: GdprComplianceServiceDraft
+        output: GdprComplianceServiceId
+      get_gdpr_compliance_service:
+        type: query
+        input: GdprComplianceServiceId
+        output: GdprComplianceServiceDetail
+      list_gdpr_compliance_services:
+        type: query
+        output: Page<GdprComplianceServiceSummary>
+      update_gdpr_compliance_service:
+        type: command
+        input: GdprComplianceServiceUpdate
+        output: GdprComplianceServiceDetail
+      delete_gdpr_compliance_service:
+        type: command
+        input: GdprComplianceServiceId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - endpoint_url
+        - service_type
+        - version
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - endpoint_url
+        - service_type
+        - version
+        - status
+  ai_architecture_engine:
+    aggregate_root: AiArchitectureEngine
+    entities:
+    - AiArchitectureEngine
+    archimate_element_ids:
+    - 8754
+    _rationale: Core AI service that transforms plain English descriptions into architecture
+      specifications
+    fields:
+      AiArchitectureEngine:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_ai_architecture_engine:
+        type: command
+        input: AiArchitectureEngineDraft
+        output: AiArchitectureEngineId
+      get_ai_architecture_engine:
+        type: query
+        input: AiArchitectureEngineId
+        output: AiArchitectureEngineDetail
+      list_ai_architecture_engines:
+        type: query
+        output: Page<AiArchitectureEngineSummary>
+      update_ai_architecture_engine:
+        type: command
+        input: AiArchitectureEngineUpdate
+        output: AiArchitectureEngineDetail
+      delete_ai_architecture_engine:
+        type: command
+        input: AiArchitectureEngineId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  usage_metering_limiting:
+    aggregate_root: UsageMeteringLimiting
+    entities:
+    - UsageMeteringLimiting
+    archimate_element_ids:
+    - 8755
+    _rationale: Enforces AI call limits per billing tier with hard stops on consumption
+    fields:
+      UsageMeteringLimiting:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_usage_metering_limiting:
+        type: command
+        input: UsageMeteringLimitingDraft
+        output: UsageMeteringLimitingId
+      get_usage_metering_limiting:
+        type: query
+        input: UsageMeteringLimitingId
+        output: UsageMeteringLimitingDetail
+      list_usage_metering_limitings:
+        type: query
+        output: Page<UsageMeteringLimitingSummary>
+      update_usage_metering_limiting:
+        type: command
+        input: UsageMeteringLimitingUpdate
+        output: UsageMeteringLimitingDetail
+      delete_usage_metering_limiting:
+        type: command
+        input: UsageMeteringLimitingId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  quality_scoring_engine:
+    aggregate_root: QualityScoringEngine
+    entities:
+    - QualityScoringEngine
+    archimate_element_ids:
+    - 8756
+    _rationale: Evaluates generated code quality and architecture completeness with
+      0-100 scoring
+    fields:
+      QualityScoringEngine:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_quality_scoring_engine:
+        type: command
+        input: QualityScoringEngineDraft
+        output: QualityScoringEngineId
+      get_quality_scoring_engine:
+        type: query
+        input: QualityScoringEngineId
+        output: QualityScoringEngineDetail
+      list_quality_scoring_engines:
+        type: query
+        output: Page<QualityScoringEngineSummary>
+      update_quality_scoring_engine:
+        type: command
+        input: QualityScoringEngineUpdate
+        output: QualityScoringEngineDetail
+      delete_quality_scoring_engine:
+        type: command
+        input: QualityScoringEngineId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  git_hub_integration_service:
+    aggregate_root: GitHubIntegrationService
+    entities:
+    - GitHubIntegrationService
+    archimate_element_ids:
+    - 8764
+    _rationale: Manages GitHub OAuth connections and repository push operations for
+      exports
+    fields:
+      GitHubIntegrationService:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: endpoint_url
+        type: string
+        format: url
+        max_length: 500
+      - name: service_type
+        type: string
+        max_length: 50
+      - name: version
+        type: string
+        max_length: 20
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    operations:
+      create_git_hub_integration_service:
+        type: command
+        input: GitHubIntegrationServiceDraft
+        output: GitHubIntegrationServiceId
+      get_git_hub_integration_service:
+        type: query
+        input: GitHubIntegrationServiceId
+        output: GitHubIntegrationServiceDetail
+      list_git_hub_integration_services:
+        type: query
+        output: Page<GitHubIntegrationServiceSummary>
+      update_git_hub_integration_service:
+        type: command
+        input: GitHubIntegrationServiceUpdate
+        output: GitHubIntegrationServiceDetail
+      delete_git_hub_integration_service:
+        type: command
+        input: GitHubIntegrationServiceId
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - endpoint_url
+        - service_type
+        - version
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - endpoint_url
+        - service_type
+        - version
+        - status
+  core_business_entity:
+    aggregate_root: CoreBusinessEntity
+    entities:
+    - CoreBusinessEntity
+    archimate_element_ids:
+    - 3075
+    fields:
+      CoreBusinessEntity:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  key_metrics_and_kp_is:
+    aggregate_root: KeyMetricsAndKpIs
+    entities:
+    - KeyMetricsAndKpIs
+    archimate_element_ids:
+    - 3061
+    fields:
+      KeyMetricsAndKpIs:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: metric_name
+        type: string
+        max_length: 100
+        required: true
+      - name: value
+        type: decimal
+      - name: target
+        type: decimal
+      - name: unit
+        type: string
+        max_length: 20
+      - name: measured_at
+        type: datetime
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - metric_name
+        - value
+        - target
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - metric_name
+        - value
+        - target
+        - unit
+        - measured_at
+        - status
+  analytics_data_store:
+    aggregate_root: AnalyticsDataStore
+    entities:
+    - AnalyticsDataStore
+    archimate_element_ids:
+    - 3160
+    fields:
+      AnalyticsDataStore:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: metric_name
+        type: string
+        max_length: 100
+        required: true
+      - name: value
+        type: decimal
+      - name: target
+        type: decimal
+      - name: unit
+        type: string
+        max_length: 20
+      - name: measured_at
+        type: datetime
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - metric_name
+        - value
+        - target
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - metric_name
+        - value
+        - target
+        - unit
+        - measured_at
+        - status
+  workspace_data:
+    aggregate_root: WorkspaceData
+    entities:
+    - WorkspaceData
+    archimate_element_ids:
+    - 8730
+    fields:
+      WorkspaceData:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  journey_session_conversations:
+    aggregate_root: JourneySessionConversations
+    entities:
+    - JourneySessionConversations
+    archimate_element_ids:
+    - 8731
+    fields:
+      JourneySessionConversations:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  genome_spec_definitions:
+    aggregate_root: GenomeSpecDefinitions
+    entities:
+    - GenomeSpecDefinitions
+    archimate_element_ids:
+    - 8733
+    fields:
+      GenomeSpecDefinitions:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+  generated_code_artifacts:
+    aggregate_root: GeneratedCodeArtifacts
+    entities:
+    - GeneratedCodeArtifacts
+    archimate_element_ids:
+    - 8734
+    fields:
+      GeneratedCodeArtifacts:
+      - name: name
+        type: string
+        required: true
+        max_length: 255
+      - name: description
+        type: text
+        required: false
+      - name: status
+        type: enum
+        enum_values:
+        - active
+        - inactive
+        - archived
+        required: true
+        default_value: active
+      - name: created_at
+        type: datetime
+        required: false
+      - name: updated_at
+        type: datetime
+        required: false
+    views:
+      list:
+        columns:
+        - name
+        - description
+        - status
+        - created_at
+        - updated_at
+        default_sort:
+          field: name
+          dir: desc
+        filters:
+        - status
+        actions:
+        - view
+        - edit
+        - delete
+      detail:
+        sections:
+        - summary
+        - details
+        - history
+      create:
+        fields:
+        - name
+        - status
+infrastructure:
+  database: postgresql
+  auth: jwt-local
+  observability: opentelemetry
+  cache: none
+  search: none
+  event_bus: none
+  scaling:
+    organization_size: smb
+security:
+  mfa: none
+  api_keys: false
+  encryption_at_rest: false
+  multi_tenancy: true
+  rate_limiting:
+    default: 100/min
+    authenticated: 1000/min
+deployment:
+  target: docker_compose
+  environments:
+  - staging
+  - production
+  ci_cd:
+    provider: github_actions
+    registry: ghcr
+identity_provider:
+  type: jwt-local
+  roles:
+  - admin
+  - user
+  - viewer
+_archimate_sources:
+  modules.smtp_relay_gcp.SmtpRelayGcp: 963
+  modules.smtp_relay_gcp: 963
+  modules.primary_data_store.PrimaryDataStore: 3150
+  modules.primary_data_store: 3150
+  modules.identity_and_access_management.IdentityAndAccessManagement: 3153
+  modules.identity_and_access_management: 3153
+  modules.authentication_service.AuthenticationService: 2863
+  modules.authentication_service: 2863
+  modules.monitoring_platform.MonitoringPlatform: 3156
+  modules.monitoring_platform: 3156
+  modules.analytics_engine.AnalyticsEngine: 3159
+  modules.analytics_engine: 3159
+  modules.reporting_service.ReportingService: 3272
+  modules.reporting_service: 3272
+  modules.gcp_cohesity_for_systems_backup.GcpCohesityForSystemsBackup: 908
+  modules.gcp_cohesity_for_systems_backup: 908
+  modules.api_gateway.ApiGateway: 3163
+  modules.api_gateway: 3163
+  modules.message_broker.MessageBroker: 3162
+  modules.message_broker: 3162
+  modules.business_logic_layer.BusinessLogicLayer: 8335
+  modules.business_logic_layer: 8335
+  modules.core_business_function.CoreBusinessFunction: 8352
+  modules.core_business_function: 8352
+  modules.core_business_api.CoreBusinessApi: 8334
+  modules.core_business_api: 8334
+  modules.frontend_application.FrontendApplication: 8320
+  modules.frontend_application: 8320
+  modules.active_directory_ad.ActiveDirectoryAd: 163
+  modules.active_directory_ad: 163
+  modules.notification_service.NotificationService: 3328
+  modules.notification_service: 3328
+  modules.google_gemini_models.GoogleGeminiModels: 1133
+  modules.google_gemini_models: 1133
+  modules.veritas_netbackup_saa_s.VeritasNetbackupSaaS: 687
+  modules.veritas_netbackup_saa_s: 687
+  modules.blueprint_journey_interface.BlueprintJourneyInterface: 8728
+  modules.blueprint_journey_interface: 8728
+  modules.architecture_template_gallery.ArchitectureTemplateGallery: 8729
+  modules.architecture_template_gallery: 8729
+  modules.blueprint_public_viewer.BlueprintPublicViewer: 8732
+  modules.blueprint_public_viewer: 8732
+  modules.cicd_toolchain.CicdToolchain: 8739
+  modules.cicd_toolchain: 8739
+  modules.cicd_pipeline.CicdPipeline: 8740
+  modules.cicd_pipeline: 8740
+  modules.health_monitoring.HealthMonitoring: 8741
+  modules.health_monitoring: 8741
+  modules.genome_spec_generator.GenomeSpecGenerator: 8750
+  modules.genome_spec_generator: 8750
+  modules.code_generation_service.CodeGenerationService: 8751
+  modules.code_generation_service: 8751
+  modules.export_service.ExportService: 8752
+  modules.export_service: 8752
+  modules.journey_session_orchestrator.JourneySessionOrchestrator: 8753
+  modules.journey_session_orchestrator: 8753
+  modules.stripe_webhook_handler.StripeWebhookHandler: 8763
+  modules.stripe_webhook_handler: 8763
+  modules.row_level_security_enforcer.RowLevelSecurityEnforcer: 8743
+  modules.row_level_security_enforcer: 8743
+  modules.gdpr_compliance_service.GdprComplianceService: 8744
+  modules.gdpr_compliance_service: 8744
+  modules.ai_architecture_engine.AiArchitectureEngine: 8754
+  modules.ai_architecture_engine: 8754
+  modules.usage_metering_limiting.UsageMeteringLimiting: 8755
+  modules.usage_metering_limiting: 8755
+  modules.quality_scoring_engine.QualityScoringEngine: 8756
+  modules.quality_scoring_engine: 8756
+  modules.git_hub_integration_service.GitHubIntegrationService: 8764
+  modules.git_hub_integration_service: 8764
+  modules.core_business_entity: 3075
+  modules.key_metrics_and_kp_is: 3061
+  modules.analytics_data_store: 3160
+  modules.workspace_data: 8730
+  modules.journey_session_conversations: 8731
+  modules.genome_spec_definitions: 8733
+  modules.generated_code_artifacts: 8734
+webhooks:
+  enabled: true
+  delivery:
+    retry_attempts: 3
+    retry_backoff: exponential
+  subscriptions: []
+_inferred_capabilities:
+- audit_trail
+- encryption_at_rest
+- export
+- mfa
+- notifications
+- rate_limiting
+- search
+- webhooks

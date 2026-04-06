@@ -1,0 +1,1455 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archie.internal/schemas/architectural-genome/1.0.0",
+  "title": "Architectural Genome v1.0.0",
+  "description": "Machine-readable intermediate representation capturing all design decisions from the ARCHIE journey wizard. Single source of truth for all code generators.",
+  "type": "object",
+  "required": [
+    "genome_version",
+    "solution_id",
+    "generated_at",
+    "problem",
+    "modules",
+    "infrastructure",
+    "security"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "genome_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of the genome schema. Generators declare compatibility ranges."
+    },
+    "solution_id": {
+      "type": "integer",
+      "description": "ARCHIE Solution.id that produced this genome."
+    },
+    "solution_name": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "python-fastapi",
+        "python-flask",
+        "go-chi",
+        "java-spring-boot",
+        "salesforce-apex",
+        "react-native-expo",
+        "react-shadcn",
+        "sap-cap"
+      ],
+      "description": "Target language/framework for code generation."
+    },
+    "problem": {
+      "type": "object",
+      "required": [
+        "statement"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Business problem from Step 1."
+        },
+        "success_metrics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "business_domain": {
+          "type": "string",
+          "description": "Finance, Healthcare, Retail, etc."
+        },
+        "_rationale": {
+          "type": "string",
+          "description": "Why this problem was chosen \u2014 for developer context."
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "acm_domain": {
+            "type": "string",
+            "enum": [
+              "UX",
+              "APP",
+              "DATA",
+              "SEC",
+              "DEV",
+              "AI",
+              "COM"
+            ]
+          },
+          "maturity": {
+            "type": "object",
+            "properties": {
+              "current": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 5
+              },
+              "target": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 5
+              }
+            }
+          },
+          "archimate_element_id": {
+            "type": "integer",
+            "description": "Source ArchiMateElement.id for traceability."
+          }
+        }
+      }
+    },
+    "modules": {
+      "type": "object",
+      "description": "One key per bounded context / module.",
+      "additionalProperties": {
+        "$ref": "#/$defs/ModuleDef"
+      }
+    },
+    "infrastructure": {
+      "type": "object",
+      "required": [
+        "database",
+        "auth"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "database": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [
+                "postgresql"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "engine": {
+                  "type": "string"
+                }
+              }
+            }
+          ],
+          "description": "Only PostgreSQL supported in v1.0."
+        },
+        "cache": {
+          "type": "string",
+          "enum": [
+            "redis",
+            "none"
+          ],
+          "default": "none"
+        },
+        "search": {
+          "type": "string",
+          "enum": [
+            "postgresql_fts",
+            "none"
+          ],
+          "default": "none"
+        },
+        "auth": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [
+                "keycloak",
+                "jwt_local",
+                "jwt-local",
+                "none",
+                "oauth2",
+                "api_key"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "provider": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
+          ],
+          "description": "Identity provider."
+        },
+        "observability": {
+          "type": "string",
+          "enum": [
+            "opentelemetry",
+            "none"
+          ],
+          "default": "opentelemetry"
+        },
+        "event_bus": {
+          "type": "string",
+          "enum": [
+            "in_process",
+            "none"
+          ],
+          "default": "none",
+          "description": "v1 supports in-process only. Kafka/RabbitMQ deferred."
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mfa": {
+          "type": "string",
+          "enum": [
+            "none",
+            "required_for_admin",
+            "required_for_all"
+          ],
+          "default": "none"
+        },
+        "api_keys": {
+          "type": "boolean",
+          "default": false,
+          "description": "Generate API key management endpoints for B2B."
+        },
+        "rate_limiting": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "type": "string",
+              "description": "e.g. '100/min'"
+            },
+            "authenticated": {
+              "type": "string",
+              "description": "e.g. '1000/min'"
+            }
+          }
+        },
+        "encryption_at_rest": {
+          "type": "boolean",
+          "default": false,
+          "description": "Auto-encrypt fields marked sensitivity: restricted or pii."
+        },
+        "multi_tenancy": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "strategy": {
+                  "type": "string",
+                  "enum": [
+                    "row_level",
+                    "schema_per_tenant",
+                    "database_per_tenant"
+                  ],
+                  "default": "row_level",
+                  "description": "row_level = organization_id FK on all tables; schema_per_tenant = Postgres schema isolation; database_per_tenant = full DB isolation."
+                },
+                "tenant_field": {
+                  "type": "string",
+                  "default": "organization_id"
+                }
+              }
+            }
+          ],
+          "description": "Multi-tenancy strategy. true = row_level with organization_id. Object form allows configuring strategy and field name."
+        }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "type": "string",
+          "enum": [
+            "docker_compose",
+            "kubernetes"
+          ],
+          "default": "docker_compose"
+        },
+        "environments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "staging",
+            "production"
+          ]
+        },
+        "ci_cd": {
+          "type": "object",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": [
+                "github_actions",
+                "gitlab_ci",
+                "none"
+              ],
+              "default": "github_actions"
+            },
+            "registry": {
+              "type": "string",
+              "enum": [
+                "ghcr",
+                "ecr",
+                "gcr",
+                "acr",
+                "none"
+              ],
+              "default": "ghcr"
+            }
+          }
+        }
+      }
+    },
+    "mobile": {
+      "type": "object",
+      "description": "Optional. Omit entirely for web-only apps.",
+      "additionalProperties": false,
+      "properties": {
+        "framework": {
+          "type": "string",
+          "enum": [
+            "expo-react-native"
+          ],
+          "default": "expo-react-native"
+        },
+        "offline": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "tier": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ],
+              "description": "1=read cache only, 2=optimistic mutations with sync queue."
+            },
+            "offline_entities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Module names that support offline mutations (tier 2 only)."
+            },
+            "conflict_strategy": {
+              "type": "string",
+              "enum": [
+                "last_write_wins"
+              ],
+              "default": "last_write_wins"
+            }
+          }
+        },
+        "push_notifications": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "channels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "trigger",
+                  "title"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "type": "string",
+                    "description": "State machine transition or event that triggers notification."
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "body_template": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "camera",
+              "barcode_scanner",
+              "gps_location",
+              "biometric_auth",
+              "file_picker"
+            ]
+          },
+          "description": "Native capabilities to include in the mobile app."
+        }
+      }
+    },
+    "compliance": {
+      "type": "object",
+      "description": "Optional. Compliance-related generation flags.",
+      "additionalProperties": false,
+      "properties": {
+        "frameworks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "soc2",
+              "gdpr",
+              "hipaa"
+            ]
+          },
+          "description": "Compliance frameworks. Affects audit logging depth, data retention, consent flows."
+        },
+        "audit_logging": {
+          "type": "string",
+          "enum": [
+            "all_mutations",
+            "sensitive_only",
+            "none"
+          ],
+          "default": "all_mutations"
+        },
+        "data_retention_years": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 99
+        }
+      }
+    },
+    "webhooks": {
+      "type": "object",
+      "description": "Optional. Webhook event delivery for integration with external systems.",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "delivery": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "retry_attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10,
+              "default": 3
+            },
+            "retry_backoff": {
+              "type": "string",
+              "enum": [
+                "linear",
+                "exponential"
+              ],
+              "default": "exponential"
+            },
+            "dead_letter_queue": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "subscriptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "event",
+              "description"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "type": "string",
+                "description": "Event name, e.g. 'work_order.status_changed' or 'work_order.created'."
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "identity_provider": {
+      "type": "object",
+      "description": "OIDC/OAuth2 configuration for the generated app.",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "oidc",
+            "jwt-local"
+          ],
+          "default": "jwt-local"
+        },
+        "preset": {
+          "type": "string",
+          "enum": [
+            "keycloak",
+            "okta",
+            "azure_ad",
+            "auth0",
+            "cognito",
+            "custom"
+          ],
+          "description": "Pre-configured IdP preset. Generates correct issuer/JWKS URLs."
+        },
+        "issuer_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "client_id": {
+          "type": "string"
+        },
+        "audience": {
+          "type": "string"
+        },
+        "role_claim_path": {
+          "type": "string",
+          "description": "JSONPath to roles in the JWT. e.g. 'realm_access.roles' for Keycloak."
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Application roles. Used for RBAC generation.",
+          "default": [
+            "admin",
+            "user",
+            "viewer"
+          ]
+        }
+      }
+    },
+    "product": {
+      "type": "object",
+      "description": "Optional. Product branding and configuration for the generated app UI.",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Product display name (defaults to solution_name)."
+        },
+        "tagline": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Short tagline shown on login/dashboard."
+        },
+        "logo_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to product logo image."
+        },
+        "favicon_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to favicon."
+        },
+        "primary_color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "default": "#2563eb",
+          "description": "Primary brand color (hex)."
+        },
+        "accent_color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "default": "#10b981",
+          "description": "Accent/success color (hex)."
+        },
+        "support_email": {
+          "type": "string",
+          "format": "email"
+        },
+        "terms_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "privacy_url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "workers": {
+      "type": "array",
+      "description": "Background workers / async tasks. Generates Celery app + per-task files when non-empty.",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "trigger"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Snake-case worker name. Becomes the Celery task module name."
+          },
+          "trigger": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "event",
+              "schedule",
+              "webhook"
+            ],
+            "description": "manual = called via .delay()/.apply_async(); event = fired by domain event; schedule = Celery Beat periodic; webhook = triggered by inbound webhook."
+          },
+          "queue": {
+            "type": "string",
+            "default": "default",
+            "description": "Celery queue routing key."
+          },
+          "retry_policy": {
+            "type": "object",
+            "properties": {
+              "max_retries": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10,
+                "default": 3
+              },
+              "backoff": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Initial retry delay in seconds."
+              }
+            }
+          },
+          "estimated_duration_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 300,
+            "description": "Used to set Celery soft_time_limit."
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Other worker names this task depends on (for chaining)."
+          }
+        }
+      }
+    },
+    "api_protocol": {
+      "type": "string",
+      "enum": [
+        "rest",
+        "graphql",
+        "both",
+        "grpc"
+      ],
+      "default": "rest",
+      "description": "API protocol for generated handlers. 'both' generates REST + GraphQL endpoints in parallel. 'grpc' generates proto3 + gRPC stubs."
+    },
+    "graphql": {
+      "type": "object",
+      "description": "GraphQL configuration. Only relevant when api_protocol is 'graphql' or 'both'.",
+      "additionalProperties": false,
+      "properties": {
+        "library": {
+          "type": "string",
+          "enum": [
+            "strawberry",
+            "ariadne"
+          ],
+          "default": "strawberry",
+          "description": "Python: strawberry (code-first) or ariadne (schema-first)."
+        },
+        "subscriptions": {
+          "type": "boolean",
+          "default": false,
+          "description": "Generate WebSocket subscription resolvers."
+        },
+        "depth_limit": {
+          "type": "integer",
+          "default": 5,
+          "description": "Maximum query depth (security guard)."
+        },
+        "introspection": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable schema introspection endpoint (disable in production)."
+        }
+      }
+    },
+    "feature_flags": {
+      "type": "object",
+      "description": "Feature flag configuration. Generates app/flags.py with named helpers.",
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "env",
+            "launchdarkly",
+            "unleash",
+            "custom"
+          ],
+          "default": "env",
+          "description": "Flag evaluation backend. 'env' = FEATURE_* env vars (zero dependencies)."
+        },
+        "flags": {
+          "type": "object",
+          "description": "Named flag definitions. Keys become Python function names.",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "default": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "notifications": {
+      "type": "object",
+      "description": "Notification channels and event triggers.",
+      "additionalProperties": false,
+      "properties": {
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "email",
+              "sms",
+              "push",
+              "in_app"
+            ]
+          }
+        },
+        "provider": {
+          "type": "string",
+          "enum": [
+            "sendgrid",
+            "ses",
+            "mailgun",
+            "twilio",
+            "firebase",
+            "none"
+          ],
+          "default": "none"
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "event",
+              "channel",
+              "template"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "type": "string"
+              },
+              "channel": {
+                "type": "string"
+              },
+              "recipients": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "template": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "file_storage": {
+      "type": "object",
+      "description": "File upload and storage configuration.",
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "s3",
+            "gcs",
+            "azure_blob",
+            "local",
+            "none"
+          ],
+          "default": "none"
+        },
+        "max_file_size_mb": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5000
+        },
+        "allowed_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cdn_enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "virus_scan": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "payments": {
+      "type": "object",
+      "description": "Payment provider and mode configuration.",
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "stripe",
+            "paypal",
+            "gocardless",
+            "none"
+          ],
+          "default": "none"
+        },
+        "modes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "one_time",
+              "subscription",
+              "invoice"
+            ]
+          }
+        },
+        "webhook_secret_env": {
+          "type": "string"
+        }
+      }
+    },
+    "_archimate_sources": {
+      "type": "object",
+      "description": "Traceability map: genome paths \u2192 ArchiMateElement IDs. Not used by generators \u2014 used by drift detection and audit.",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "_inferred_capabilities": {
+      "type": "array",
+      "description": "Capability flags inferred by the AABL compiler from NFR requirements, compliance, and integrations. Drives conditional template rendering (audit, webhooks, notifications, etc.).",
+      "items": {
+        "type": "string"
+      }
+    },
+    "integrations": {
+      "type": "object",
+      "description": "External system integrations (APIs, data sources, event buses)",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "ModuleDef": {
+      "type": "object",
+      "required": [
+        "aggregate_root",
+        "entities"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "_rationale": {
+          "type": "string",
+          "description": "Why this module exists \u2014 business justification from the wizard."
+        },
+        "bounded_context": {
+          "type": "string",
+          "description": "DDD bounded context name. Defaults to module key if omitted."
+        },
+        "aggregate_root": {
+          "type": "string",
+          "description": "Primary entity name (PascalCase)."
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Entity names within this module."
+        },
+        "value_objects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Value objects (immutable, no identity)."
+        },
+        "fields": {
+          "type": "object",
+          "description": "Field definitions per entity. Key = entity name.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/FieldDef"
+            }
+          }
+        },
+        "operations": {
+          "type": "object",
+          "description": "Commands and queries. Key = operation name.",
+          "additionalProperties": {
+            "$ref": "#/$defs/OperationDef"
+          }
+        },
+        "state_machine": {
+          "$ref": "#/$defs/StateMachineDef"
+        },
+        "views": {
+          "type": "object",
+          "description": "UI view definitions for this module.",
+          "properties": {
+            "list": {
+              "$ref": "#/$defs/ListViewDef"
+            },
+            "detail": {
+              "$ref": "#/$defs/DetailViewDef"
+            },
+            "create": {
+              "$ref": "#/$defs/CreateViewDef"
+            }
+          }
+        },
+        "sensitive_fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "field",
+              "level"
+            ],
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "Dotted path: entity.field_name"
+              },
+              "level": {
+                "type": "string",
+                "enum": [
+                  "public",
+                  "internal",
+                  "pii",
+                  "restricted"
+                ]
+              }
+            }
+          }
+        },
+        "archimate_element_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "description": "Source ArchiMateElement IDs that produced this module."
+        }
+      }
+    },
+    "FieldDef": {
+      "type": "object",
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "integer",
+            "float",
+            "boolean",
+            "datetime",
+            "date",
+            "text",
+            "json",
+            "uuid",
+            "decimal",
+            "enum"
+          ]
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "email",
+            "url",
+            "phone",
+            "uuid",
+            "date-time",
+            "date"
+          ],
+          "description": "Semantic format hint for validation."
+        },
+        "required": {
+          "type": "boolean",
+          "default": true
+        },
+        "unique": {
+          "type": "boolean",
+          "default": false
+        },
+        "max_length": {
+          "type": "integer"
+        },
+        "min_length": {
+          "type": "integer"
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "default_value": {},
+        "enum_values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "foreign_key": {
+          "type": "string",
+          "description": "Reference to another entity: 'EntityName.field_name'"
+        },
+        "index": {
+          "type": "boolean",
+          "default": false
+        },
+        "description": {
+          "type": "string"
+        },
+        "readonly": {
+          "type": "boolean",
+          "default": false,
+          "description": "Field is system-managed (e.g. created_at). Excluded from create/update schemas."
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": [
+            "none",
+            "pii",
+            "restricted"
+          ],
+          "default": "none",
+          "description": "Data classification. pii=masked in logs, restricted=encrypted at rest."
+        }
+      }
+    },
+    "OperationDef": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "command",
+            "query"
+          ]
+        },
+        "input": {
+          "type": "string",
+          "description": "Input schema/entity name."
+        },
+        "output": {
+          "type": "string",
+          "description": "Output schema/entity name."
+        },
+        "authorization": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Roles allowed to execute this operation."
+        },
+        "validation": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "rule": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "cache": {
+          "type": "object",
+          "properties": {
+            "ttl": {
+              "type": "string",
+              "description": "Cache TTL, e.g. '30s', '5m', '1h'."
+            }
+          }
+        },
+        "emits": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Domain events emitted on success."
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "StateMachineDef": {
+      "type": "object",
+      "required": [
+        "field",
+        "states",
+        "transitions"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Model field that holds the current state.",
+          "default": "status"
+        },
+        "states": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2
+        },
+        "initial_state": {
+          "type": "string",
+          "description": "Default initial state. Defaults to first state in the array."
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "from",
+              "to",
+              "trigger"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "description": "Source state(s)."
+              },
+              "to": {
+                "type": "string",
+                "description": "Target state."
+              },
+              "trigger": {
+                "type": "string",
+                "description": "Action name that triggers this transition."
+              },
+              "guard": {
+                "type": "string",
+                "description": "Boolean expression that must be true for the transition to fire."
+              },
+              "effect": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "description": "Side effect(s) executed after transition."
+              },
+              "authorization": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Roles allowed to trigger this transition."
+              }
+            }
+          }
+        }
+      }
+    },
+    "ListViewDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "default_sort": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            },
+            "dir": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Row-level actions: view, edit, delete, or state machine triggers."
+        },
+        "export_formats": {
+          "type": "array",
+          "description": "File formats available from the export button. Empty = no export button rendered.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "xlsx",
+              "pdf",
+              "json"
+            ]
+          },
+          "default": []
+        },
+        "search_fields": {
+          "type": "array",
+          "description": "Entity field names to include in the full-text search bar. Empty = no search bar.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "empty_state": {
+          "type": "object",
+          "description": "What to show when the list has no records.",
+          "additionalProperties": false,
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "cta_label": {
+              "type": "string"
+            },
+            "cta_action": {
+              "type": "string",
+              "enum": [
+                "create",
+                "import",
+                "none"
+              ]
+            }
+          }
+        },
+        "bulk_actions": {
+          "type": "array",
+          "description": "Actions available when multiple rows are selected.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "delete",
+              "export",
+              "assign",
+              "archive"
+            ]
+          }
+        },
+        "pagination": {
+          "type": "object",
+          "description": "Pagination configuration for the list view.",
+          "additionalProperties": false,
+          "properties": {
+            "default_page_size": {
+              "type": "integer",
+              "default": 25,
+              "minimum": 5,
+              "maximum": 500
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "DetailViewDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Named sections in the detail view."
+        },
+        "show_audit_trail": {
+          "type": "boolean",
+          "description": "Render an audit log tab on detail page. Only effective when compliance.audit_logging = true.",
+          "default": false
+        },
+        "related_lists": {
+          "type": "array",
+          "description": "Child entities to render as embedded lists on the detail page.",
+          "items": {
+            "type": "object",
+            "required": [
+              "entity",
+              "via_field"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "entity": {
+                "type": "string"
+              },
+              "via_field": {
+                "type": "string"
+              },
+              "display_columns": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "CreateViewDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields shown in the create form. Subset of entity fields."
+        },
+        "wizard_steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "If present, the create form becomes a multi-step wizard."
+        }
+      }
+    }
+  }
+}
