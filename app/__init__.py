@@ -191,4 +191,14 @@ def create_app(config_override=None) -> Flask:
             from flask import jsonify
             return jsonify({"status": "ok", "version": "code_2026-04-06T18-28-31Z"})
 
+
+        # ── Engine blueprints (Journey Wizard + Codegen + Billing) ──────────
+        from engine.routes.journey_bp import journey_bp
+        app.register_blueprint(journey_bp)
+
+        from engine.routes.codegen_bp import codegen_bp as codegen_engine_bp
+        app.register_blueprint(codegen_engine_bp)
+
+        from engine.routes.billing_bp import billing_bp
+        app.register_blueprint(billing_bp)
     return app

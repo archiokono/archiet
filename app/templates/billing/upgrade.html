@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Upgrade Archiet</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:4rem auto;padding:0 1rem;background:#0f172a;color:#f8fafc}
+h1{font-size:2rem;font-weight:700;text-align:center}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-top:2rem}
+.plan{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:2rem}
+.plan.popular{border-color:#6366f1}
+.plan-price{font-size:2rem;font-weight:800;color:#a5b4fc}
+.btn{display:block;text-align:center;padding:.75rem 1.5rem;border-radius:8px;font-weight:600;cursor:pointer;border:none;font-size:1rem;margin-top:1rem}
+.btn-primary{background:#6366f1;color:#fff}
+</style></head>
+<body>
+<h1>Upgrade Archiet</h1>
+<div class="plans">
+  <div class="plan"><b>Free</b><div class="plan-price">$0</div><p>3 generations/month</p></div>
+  <div class="plan popular"><b>Starter</b><div class="plan-price">$29</div><p>20 generations/month</p><button class="btn btn-primary" onclick="checkout('starter')">Upgrade</button></div>
+  <div class="plan"><b>Pro</b><div class="plan-price">$99</div><p>100 generations/month</p><button class="btn btn-primary" onclick="checkout('pro')">Upgrade</button></div>
+</div>
+<script>
+async function checkout(plan){const r=await fetch('/api/billing/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan})});const d=await r.json();if(d.checkout_url)window.location.href=d.checkout_url;else alert(d.error||'Error');}
+</script>
+</body></html>

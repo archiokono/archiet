@@ -1,0 +1,34 @@
+# Archiet — AI-Native Architecture-to-Code SaaS
+# https://archiet.ai | llms.txt v1
+
+## What is Archiet?
+Archiet transforms architecture diagrams and problem statements into production-ready,
+multi-stack code via an AI-powered Journey Wizard and Genome specification engine.
+
+## Core Capabilities
+- Journey Wizard: 9-step guided architecture → code workflow
+- Genome Engine: structured ArchiMate-derived specification (AABL format)
+- Multi-stack codegen: python-flask, python-fastapi, nextjs, go, java
+- Code Workbench: browser-based editor, NL code editor, test runner
+- Compliance: ARCHIET_PROVENANCE.json, .cursorrules, CLAUDE.md in every ZIP
+
+## API
+Base URL: https://api.archiet.ai/v1
+Auth: Bearer JWT
+POST /api/journey/sessions — create journey
+POST /api/codegen/sessions/{id}/generate — generate code (SSE)
+GET  /api/codegen/artifacts/{id}/download — download ZIP
+
+## MCP Server
+npx -y @archiet/mcp-server
+Tools: create_journey, generate_code, download_artifact, get_session_status
+
+## Pricing
+Free: 3 generations/month
+Starter: 20/month ($29)
+Pro: 100/month ($99)
+Enterprise: unlimited (contact sales)
+
+## Integrations
+VS Code extension: ext install archiet.archiet
+npx create-archiet-app <name> --stack python-flask
