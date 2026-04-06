@@ -1,3 +1,5 @@
+from __future__ import annotations
+import json
 """Journey Wizard — HTML UI + session management API.
 
 Routes:
@@ -9,7 +11,6 @@ Routes:
   PUT  /api/journey/sessions/<id>/step — advance step + save data
   POST /api/journey/sessions/<id>/chat — send chat message (streams via SSE)
 """
-from __future__ import annotations
 import uuid, json, logging, os
 from datetime import datetime
 from flask import Blueprint, jsonify, request, render_template, Response, stream_with_context
@@ -177,7 +178,15 @@ def _pick_provider():
 def _stream_llm(provider: str, context: str, message: str):
     if provider == "anthropic":
         import anthropic
-        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        ws = _get_workspace(user_id)
+        if not ws:
+            yield f"data: {json.dumps({'error': 'No workspace found. Please create a workspace first.'})}" + "\n\n"
+            return
+        llm_key = ws.get_llm_key(provider)
+        if not llm_key:
+            yield f"data: {json.dumps({'error': f'No {provider} API key configured. Add it at /settings/keys'})}" + "\n\n"
+            return
+        client = anthropic.Anthropic(api_key=llm_key)
         with client.messages.stream(
             model="claude-3-5-sonnet-20241022",
             max_tokens=4096,
@@ -188,7 +197,7 @@ def _stream_llm(provider: str, context: str, message: str):
                 yield text
     elif provider == "openai":
         import openai
-        client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        client = openai.OpenAI(api_key=llm_key)
         for chunk in client.chat.completions.create(
             model="gpt-4o", max_tokens=4096, stream=True,
             messages=[{"role": "system", "content": context},

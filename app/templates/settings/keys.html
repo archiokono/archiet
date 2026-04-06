@@ -1,0 +1,95 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}API Keys — Archiet{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-6 py-10" x-data="keysPage()">
+  <h1 class="text-2xl font-semibold text-zinc-100 mb-1">Your LLM API Keys</h1>
+  <p class="text-zinc-400 text-sm mb-8">
+    Archiet uses your own API keys — your credits, your data, your privacy.<br>
+    Keys are encrypted at rest and never logged or returned in API responses.
+  </p>
+
+  <!-- Status banner -->
+  <template x-if="saved">
+    <div class="mb-4 rounded-lg bg-green-900/40 border border-green-700 text-green-300 px-4 py-2 text-sm">
+      Keys saved successfully.
+    </div>
+  </template>
+  <template x-if="error">
+    <div class="mb-4 rounded-lg bg-red-900/40 border border-red-700 text-red-300 px-4 py-2 text-sm" x-text="error"></div>
+  </template>
+
+  <div class="space-y-6">
+    {% set providers = [
+      ("anthropic", "Anthropic (Claude)", "sk-ant-...", "https://console.anthropic.com/settings/keys"),
+      ("openai",    "OpenAI (GPT-4o)",   "sk-...",     "https://platform.openai.com/api-keys"),
+      ("google",    "Google (Gemini)",   "AIza...",     "https://aistudio.google.com/app/apikey"),
+    ] %}
+    {% for pid, label, placeholder, url in providers %}
+    <div class="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <span class="font-medium text-zinc-100">{{ label }}</span>
+          <a href="{{ url }}" target="_blank" class="ml-2 text-xs text-violet-400 hover:text-violet-300">Get key ↗</a>
+        </div>
+        {% if key_status.get(pid) %}
+        <span class="text-xs bg-green-900/40 text-green-400 border border-green-700 rounded-full px-2 py-0.5">✓ configured</span>
+        {% else %}
+        <span class="text-xs bg-zinc-800 text-zinc-500 rounded-full px-2 py-0.5">not set</span>
+        {% endif %}
+      </div>
+      <div class="flex gap-2">
+        <input type="password" x-model="keys.{{ pid }}"
+               placeholder="{{ placeholder }}"
+               class="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-violet-500" />
+        {% if key_status.get(pid) %}
+        <button @click="deleteKey('{{ pid }}')"
+                class="text-xs text-red-400 hover:text-red-300 px-2">Remove</button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <button @click="saveKeys()" :disabled="saving"
+          class="mt-6 w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors text-sm">
+    <span x-show="!saving">Save Keys</span>
+    <span x-show="saving">Saving…</span>
+  </button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function keysPage() {
+  return {
+    keys: { anthropic: "", openai: "", google: "" },
+    saving: false, saved: false, error: null,
+    async saveKeys() {
+      this.saving = true; this.saved = false; this.error = null;
+      const token = localStorage.getItem("archiet_token");
+      const body = {};
+      for (const [k, v] of Object.entries(this.keys)) {
+        if (v.trim()) body[k + "_key"] = v.trim();
+      }
+      const r = await fetch("/api/settings/keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+        body: JSON.stringify(body),
+      });
+      this.saving = false;
+      if (r.ok) { this.saved = true; this.keys = { anthropic: "", openai: "", google: "" }; }
+      else { this.error = "Failed to save keys. Check your session."; }
+    },
+    async deleteKey(provider) {
+      const token = localStorage.getItem("archiet_token");
+      const r = await fetch("/api/settings/keys", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+        body: JSON.stringify({ provider }),
+      });
+      if (r.ok) location.reload();
+    }
+  };
+}
+</script>
+{% endblock %}

@@ -36,7 +36,7 @@ def login():
     if not username or not password:
         return jsonify({"error": "username and password required"}), HTTPStatus.BAD_REQUEST
 
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(email=username).first() or User.query.filter_by(username=username).first()
     if user is None or not user.verify_password(password):
         return jsonify({"error": "invalid credentials"}), HTTPStatus.UNAUTHORIZED
 

@@ -202,4 +202,6 @@ def create_app(config_override=None) -> Flask:
 
         from engine.routes.billing_bp import billing_bp
         app.register_blueprint(billing_bp)
+        from engine.routes.settings_bp import settings_bp
+        app.register_blueprint(settings_bp)
     return app
