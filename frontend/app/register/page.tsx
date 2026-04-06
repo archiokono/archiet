@@ -1,36 +1,22 @@
 "use client"
-
-import { useState, FormEvent } from "react"
-import { useRouter } from "next/navigation"
+import { useState } from "react"
 import Link from "next/link"
-import { Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { toast } from "sonner"
 
 export default function RegisterPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [confirm, setConfirm] = useState("")
+  const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!email || !password || !confirm) {
-      toast.error("Please fill in all fields")
-      return
-    }
-    if (password !== confirm) {
-      toast.error("Passwords do not match")
-      return
-    }
-    if (password.length < 8) {
-      toast.error("Password must be at least 8 characters")
-      return
-    }
+    setError("")
     setLoading(true)
     try {
       const res = await fetch("/auth/register", {
@@ -39,56 +25,54 @@ export default function RegisterPage() {
         body: JSON.stringify({ email, password }),
       })
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        toast.error("Registration failed", { description: body.error || `HTTP ${res.status}` })
-        return
+        const err = await res.json().catch(() => ({ msg: "Registration failed" }))
+        throw new Error(err.msg || err.detail || "Registration failed")
       }
-      const { access_token } = await res.json()
-      localStorage.setItem("token", access_token)
-      document.cookie = `token=${access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
-      toast.success("Account created! Welcome to Archiet.")
-      router.replace("/dashboard")
-    } catch {
-      toast.error("Connection error", { description: "Could not reach the server" })
+      const data = await res.json()
+      localStorage.setItem("token", data.access_token)
+      const d = new Date(); d.setTime(d.getTime() + 24*60*60*1000)
+      document.cookie = "token=" + data.access_token + ";expires=" + d.toUTCString() + ";path=/;SameSite=Lax"
+      router.push("/dashboard")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Registration failed")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Create your account</CardTitle>
-          <CardDescription>Start building with Archiet — free, no credit card required</CardDescription>
+          <CardTitle className="text-2xl font-bold">Create account</CardTitle>
+          <CardDescription>Start building with Archiet</CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            {error && <p className="text-sm text-destructive">{error}</p>}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="name@example.com" value={email}
-                onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
+              <Input id="email" type="email" placeholder="you@example.com"
+                value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="Minimum 8 characters" value={password}
-                onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
+              <Input id="password" type="password" placeholder="••••••••"
+                value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm">Confirm password</Label>
-              <Input id="confirm" type="password" placeholder="Repeat your password" value={confirm}
-                onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" required />
-            </div>
+          </CardContent>
+          <div className="flex flex-col gap-3">
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {loading ? "Creating account..." : "Create account"}
             </Button>
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground text-center">
               Already have an account?{" "}
-              <Link href="/login" className="underline underline-offset-4 hover:text-primary">Sign in</Link>
+              <Link href="/login" className="text-primary underline-offset-4 hover:underline">
+                Sign in
+              </Link>
             </p>
-          </form>
-        </CardContent>
+          </div>
+        </form>
       </Card>
     </div>
   )

@@ -1,11 +1,6 @@
-
 "use client"
-
 import { createContext, useCallback, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-
-// Prefix all fetch calls with basePath so they hit the Next.js rewrite proxy
-const _BASE_PATH = "/apps/5373"
 
 type User = {
   id: string
@@ -35,8 +30,13 @@ function setToken(token: string | null) {
   if (typeof window === "undefined") return
   if (token) {
     localStorage.setItem("token", token)
+    // Also set cookie so middleware can read it
+    const d = new Date()
+    d.setTime(d.getTime() + 24 * 60 * 60 * 1000)
+    document.cookie = "token=" + token + ";expires=" + d.toUTCString() + ";path=/;SameSite=Lax"
   } else {
     localStorage.removeItem("token")
+    document.cookie = "token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/"
   }
 }
 
@@ -53,8 +53,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
     try {
-      const res = await fetch(_BASE_PATH + "/api/auth/me", {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch("/auth/me", {
+        headers: { Authorization: "Bearer " + token },
       })
       if (res.ok) {
         const data = await res.json()
@@ -75,14 +75,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [fetchMe])
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await fetch(_BASE_PATH + "/api/auth/login", {
+    const res = await fetch("/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     })
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: "Login failed" }))
-      throw new Error(err.detail || "Login failed")
+      throw new Error(err.detail || err.msg || "Login failed")
     }
     const data = await res.json()
     setToken(data.access_token)
@@ -97,13 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [router])
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated: !!user,
-      isLoading,
-      login,
-      logout,
-    }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   )
@@ -111,8 +105,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth(): AuthContextType {
   const ctx = useContext(AuthContext)
-  if (ctx === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
+  if (ctx === undefined) throw new Error("useAuth must be used within an AuthProvider")
   return ctx
 }
